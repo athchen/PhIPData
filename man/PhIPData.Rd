@@ -2,21 +2,53 @@
 % Please edit documentation in R/PhIPData-class.R
 \name{PhIPData}
 \alias{PhIPData}
-\title{Constructor for PhIPData object.}
+\title{Construct a \code{PhIPData} object.}
 \usage{
-PhIPData(counts, logfc, prob, peptideInfo, sampleInfo, ...)
+PhIPData(
+  counts = S4Vectors::DataFrame(),
+  logfc = S4Vectors::DataFrame(),
+  prob = S4Vectors::DataFrame(),
+  peptideInfo = S4Vectors::DataFrame(),
+  sampleInfo = S4Vectors::DataFrame(),
+  .defaultNames = "info",
+  ...
+)
 }
 \arguments{
-\item{counts}{matrix of integer read counts}
+\item{counts}{a \code{matrix}, \code{data.frame}, or \code{\linkS4class{DataFrame}}
+of integer read counts.}
 
-\item{logfc}{matrix of log10 fold changes}
+\item{logfc}{a \code{matrix}, \code{data.frame}, or \code{\linkS4class{DataFrame}}
+of log10 estimated fold changes.}
 
-\item{prob}{matrix of p-values or posterior probabilities for estimated enrichment}
+\item{prob}{a \code{matrix}, \code{data.frame}, or \code{\linkS4class{DataFrame}} of
+probability values (p-values or posterior probabilities) for enrichment estimates.}
 
-\item{peptideInfo}{data frame of peptide information, must contain columns `pep_id`, `pos_start`, and `pos_end`}
+\item{peptideInfo}{a \code{data.frame} or \code{\linkS4class{DataFrame}} of peptide
+information. Peptide identifiers (\code{pep_id}) can be specified via row names
+of the \code{counts}, \code{logfc}, \code{prob}, or \code{peptideInfo} objects.
+Valid construction of a \code{PhIPData} object only requires a \code{pep_id}, but
+inclusion of other parameters, such as peptide positions or species, enables use
+of other convenient functions for filtering peptides.}
 
-\item{sampleInfo}{data frame of sample information.}
+\item{sampleInfo}{a \code{data.frame} or \code{\linkS4class{DataFrame}} of additional sample
+information. Unique sample identifiers can be specific via column names of the
+\code{counts}, \code{logfc}, \code{prob}, or \code{sampleInfo} objects.}
+
+\item{.defaultNames}{vector of default names to use when the sample and peptide ID
+disagree across the metadata and the \code{counts}, \code{logfc}, and \code{prob} matrices.
+If \code{.defaultNames} is of length 1, the same source is used for both peptide and
+sample identifiers. If \code{.defaultNames} is longer than 2, the first and second
+elements correspond to the default names to use for peptides and samples, respectively.
+Valid options are:
+\itemize{
+    \item{"info": }{names should be taken from the \code{SampleInfo} or \code{peptideInfo} objects.}
+    \item{"counts": }{names should be taken from the row/column names of the \code{counts} object.}
+    \item{"logfc": }{names should be taken from the row/column names of the \code{logfc} object.}
+    \item{"prob": }{names should be taken from the row/column names of the \code{prob} object.}
+}}
 }
 \description{
-Constructor for PhIPData object.
+TODO Edit description. Empty objects are valid objects.
+Missing peptideInfo and sampleInfo are also valid objects.
 }

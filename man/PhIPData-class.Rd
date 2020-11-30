@@ -3,10 +3,13 @@
 \docType{class}
 \name{PhIPData-class}
 \alias{PhIPData-class}
+\alias{.PhIPData}
 \title{PhIPData - A class for PhIP-Seq experiment data}
 \value{
 A \code{PhIPData} object
 }
 \description{
-The
+The \code{PhIPData} class is used to manage the results from
+phage-immunoprecipitation (PhIP-Seq) experiments. New \code{PhIPData} objects
+can be created using the homonymous constructor.
 }
