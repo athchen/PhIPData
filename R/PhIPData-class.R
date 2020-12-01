@@ -58,13 +58,6 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
                      sampleInfo = S4Vectors::DataFrame(),
                      .defaultNames = "info", ...) {
 
-  ## Coerce all inputs into DataFrames
-  # counts <- if(missing(counts)){S4Vectors::DataFrame()} else {S4Vectors::DataFrame(counts)}
-  # logfc <- if(missing(logfc)){S4Vectors::DataFrame()} else {S4Vectors::DataFrame(logfc)}
-  # prob <- if(missing(prob)){S4Vectors::DataFrame()} else {S4Vectors::DataFrame(prob)}
-  # peptideInfo <- if(missing(peptideInfo)){S4Vectors::DataFrame()} else {S4Vectors::DataFrame(peptideInfo)}
-  # sampleInfo <- if(missing(sampleInfo)){S4Vectors::DataFrame()} else {S4Vectors::DataFrame(sampleInfo)}
-
   ## Variables defined for convenience
   arrays <- c("counts", "logfc", "prob")
   arrays_missing <- arrays[c(missing(counts), missing(logfc), missing(prob))]
@@ -88,8 +81,6 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
   peptide_names <- list(rownames(counts), rownames(logfc), rownames(prob), rownames(peptideInfo))
   peptide_names <- unique(peptide_names[sapply(peptide_names, length) != 0])
   peptide_warning <- "Peptide names are not identical across inputs. Using peptide names from "
-  # print(peptide_names)
-  # print(length(unique(peptide_names)))
 
   if (length(peptide_names) == 0) {
     peptide_names <- NULL
@@ -151,8 +142,10 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
       array_list[[array]] <- S4Vectors::DataFrame(empty_mat)
     }
 
+    array_list[[arrays_present]] <- S4Vectors::DataFrame(array_list[[arrays_present]])
     rownames(array_list[[arrays_present]]) <- peptide_names
     colnames(array_list[[arrays_present]]) <- sample_names
+
   } else if (num_missing == 1) {
     empty_mat <- matrix(nrow = nrow(array_list[[arrays_present[1]]]),
                         ncol = ncol(array_list[[arrays_present[1]]]))
@@ -161,6 +154,7 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
 
     array_list[[arrays_missing]] <- S4Vectors::DataFrame(empty_mat)
     for(array in arrays_present) {
+      array_list[[array]] <- S4Vectors::DataFrame(array_list[[array]])
       rownames(array_list[[array]]) <- peptide_names
       colnames(array_list[[array]]) <- sample_names
     }
@@ -173,7 +167,6 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
     pep_end <- rep(0, length(peptide_names))
   } else {
     pep_meta <- S4Vectors::DataFrame(peptideInfo[, !colnames(peptideInfo) %in% c("pos_start", "pos_end")])
-
 
     warnings <- c(no_start = (!"pos_start" %in% colnames(peptideInfo)),
                   no_end = (!"pos_end" %in% colnames(peptideInfo)))
@@ -220,7 +213,7 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
   if(missing(sampleInfo)){
     sample_meta <- S4Vectors::DataFrame(row.names = sample_names)
   } else {
-    sample_meta <- sampleInfo
+    sample_meta <- S4Vectors::DataFrame(sampleInfo)
   }
 
   # Make RangedSummarizedExperiment
