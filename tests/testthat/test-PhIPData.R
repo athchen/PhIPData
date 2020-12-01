@@ -22,6 +22,9 @@ test_that("a PhIPData object can be created if one or more of the parameters are
   rownames(counts) <- rownames(logfc) <- rownames(prob) <- paste0("pep_", 1:n_peptides)
   colnames(counts) <- colnames(logfc) <- colnames(prob) <- paste0("sample_", 1:n_samples)
 
+  sampleInfo <- DataFrame(sample_name = paste0("sample", 1:n_samples),
+                          gender = sample(c("M", "F"), n_samples, replace = TRUE))
+
   expect_is(PhIPData(), "PhIPData")
   expect_is(PhIPData(counts = counts), "PhIPData")
   expect_is(PhIPData(logfc = logfc), "PhIPData")
@@ -29,4 +32,8 @@ test_that("a PhIPData object can be created if one or more of the parameters are
   expect_is(PhIPData(counts = counts, logfc = logfc), "PhIPData")
   expect_is(PhIPData(counts = counts, prob = prob), "PhIPData")
   expect_is(PhIPData(logfc = logfc, prob = prob), "PhIPData")
+  expect_error(PhIPData(peptideInfo = virscan_info), "Cannot create empty PhIPData object with only one of sampleInfo or peptideInfo.")
+  expect_error(PhIPData(sampleInfo = sampleInfo), "Cannot create empty PhIPData object with only one of sampleInfo or peptideInfo.")
 })
+
+
