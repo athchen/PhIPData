@@ -275,55 +275,47 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
        pep_start = pep_start,
        pep_end = pep_end)
 }
-#
-# ### ==============================================
-# ### Validity
-# ### ==============================================
-#
-# ## 1. counts cannot have negative entries
-# .checkAssays <- function(object){
-#   if(any(counts(object) < 0)) { "'counts' cannot have negative entries." } else NULL
-# }
-#
-# ## 2. dimensions of all assays must be the same
-# .checkDims <- function(object){
-#
-#   sample_dims <- c(ncol(counts(object)), ncol(logfc(object)), ncol(prob(object)), nrow(sampleInfo(object)))
-#   peptide_dims <- c(nrow(counts(object)), nrow(logfc(object)), nrow(prob(object)), nrow(peptideInfo(object)))
-#
-#   match <- c(length(unique(sample_dims)) == 1, length(unique(peptide_dims)) == 1)
-#
-#   error <- paste0("Dimensions do not match across ",
-#                   paste0(c("samples", "peptides")[!match], collapse = " and "), ".")
-#
-#   if(sum(match) < 2){ error } else { NULL }
-# }
-#
-# ## 3. sample and peptide names must be identical across all assays and annotation information.
-# .checkNames <- function(object){
-#
-#   sample_names <- c(colnames(counts(object)), colnames(logfc(object)),
-#                     colnames(prob(object)), rownames(sampleInfo(object)))
-#   peptide_names <- c(rownames(counts(object)), rownames(logfc(object)),
-#                      rownames(prob(object)), rownames(peptideInfo(object)))
-#
-#   match <- c(length(unique(sample_names)) == 1, length(unique(peptide_names)) == 1)
-#
-#   error <- paste0("Names do not match across ",
-#                   paste0(c("samples", "peptides")[!match], collapse = " and "), ".")
-#
-#   if(sum(match < 2)) { error } else { NULL }
-#
-# }
-#
-# .validPhIPData <- function(object){
-#   if(!isEmpty(object)){
-#     c(.checkAssays(object), .checkDims(object), .checkNames(object))
-#   }
-# }
-#
-# S4Vectors::setValidity2("PhIPData", .validPhIPData)
-#
+
+### ==============================================
+### Validity
+### ==============================================
+
+## 1. counts cannot have negative entries
+.checkAssays <- function(object){
+  if(any(counts(object) < 0)) { "'counts' cannot have negative entries." } else NULL
+}
+
+## 2. Sample and peptide dimensions must be the same within the object.
+.checkObjectDim <- function(object){
+  dim_check <- .checkDims(counts(object), logfc(object), prob(object), peptideInfo(object), sampleInfo(object))
+  if(is.character(dim_check)) { dim_check } else NULL
+}
+
+## 3. sample and peptide names must be identical across all assays and annotation information.
+.checkNames <- function(object){
+
+  sample_names <- c(colnames(counts(object)), colnames(logfc(object)),
+                    colnames(prob(object)), rownames(sampleInfo(object)))
+  peptide_names <- c(rownames(counts(object)), rownames(logfc(object)),
+                     rownames(prob(object)), rownames(peptideInfo(object)))
+
+  match <- c(length(unique(sample_names)) == 1, length(unique(peptide_names)) == 1)
+
+  error <- paste0("Names do not match across ",
+                  paste0(c("samples", "peptides")[!match], collapse = " and "), ".")
+
+  if(sum(match < 2)) { error } else { NULL }
+
+}
+
+.validPhIPData <- function(object){
+  if(!isEmpty(object)){
+    c(.checkAssays(object), .checkObjectDim(object), .checkNames(object))
+  }
+}
+
+S4Vectors::setValidity2("PhIPData", .validPhIPData)
+
 # ### ==============================================
 # ### Getters
 # ### ==============================================
