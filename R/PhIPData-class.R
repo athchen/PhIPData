@@ -316,45 +316,45 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
 
 S4Vectors::setValidity2("PhIPData", .validPhIPData)
 
-# ### ==============================================
-# ### Getters
-# ### ==============================================
-#
-# setGeneric("counts", function(x) standardGeneric("counts"))
-# setMethod("counts", "PhIPData", function(x) assays(x)[["counts"]])
-#
-# setGeneric("logfc", function(x) standardGeneric("logfc"))
-# setMethod("logfc", "PhIPData", function(x) assays(x)[["logfc"]])
-#
-# setGeneric("prob", function(x) standardGeneric("prob"))
-# setMethod("prob", "PhIPData", function(x) assays(x)[["prob"]])
-#
-# setGeneric("peptideInfo", function(x) standardGeneric("peptideInfo"))
-# setMethod("peptideInfo", "PhIPData", function(x) rowRanges(x))
-#
-# setGeneric("sampleInfo", function(x) standardGeneric("sampleInfo"))
-# setMethod("sampleInfo", "PhIPData", function(x) colData(x))
-#
-# ### ==============================================
-# ### Setters
-# ### ==============================================
-#
-# setGeneric("counts<-", function(object, value) standardGeneric("counts<-"))
-# setReplaceMethod("counts", "PhIPData", function(object, value) {
-#   .replaceAssay(object, "counts", value)
-# })
-#
-# setGeneric("logfc<-", function(object, value) standardGeneric("logfc<-"))
-# setReplaceMethod("logfc", "PhIPData", function(object, value) {
-#   .replaceAssay(object, "logfc", value)
-# })
-#
-# setGeneric("prob<-", function(object, value) standardGeneric("prob<-"))
-# setReplaceMethod("prob", "PhIPData", function(object, value) {
-#   .replaceAssay(object, "prob", value)
-# })
-#
-# setGeneric("peptideInfo<-", function(object, value) standardGeneric("peptideInfo<-"))
+### ==============================================
+### Getters
+### ==============================================
+
+setGeneric("counts", function(x) standardGeneric("counts"))
+setMethod("counts", "PhIPData", function(x) assays(x)[["counts"]])
+
+setGeneric("logfc", function(x) standardGeneric("logfc"))
+setMethod("logfc", "PhIPData", function(x) assays(x)[["logfc"]])
+
+setGeneric("prob", function(x) standardGeneric("prob"))
+setMethod("prob", "PhIPData", function(x) assays(x)[["prob"]])
+
+setGeneric("peptideInfo", function(x) standardGeneric("peptideInfo"))
+setMethod("peptideInfo", "PhIPData", function(x) rowRanges(x))
+
+setGeneric("sampleInfo", function(x) standardGeneric("sampleInfo"))
+setMethod("sampleInfo", "PhIPData", function(x) colData(x))
+
+### ==============================================
+### Setters
+### ==============================================
+
+setGeneric("counts<-", function(object, value) standardGeneric("counts<-"))
+setReplaceMethod("counts", "PhIPData", function(object, value) {
+  .replaceAssay(object, "counts", value)
+})
+
+setGeneric("logfc<-", function(object, value) standardGeneric("logfc<-"))
+setReplaceMethod("logfc", "PhIPData", function(object, value) {
+  .replaceAssay(object, "logfc", value)
+})
+
+setGeneric("prob<-", function(object, value) standardGeneric("prob<-"))
+setReplaceMethod("prob", "PhIPData", function(object, value) {
+  .replaceAssay(object, "prob", value)
+})
+
+setGeneric("peptideInfo<-", function(object, value) standardGeneric("peptideInfo<-"))
 # setReplaceMethod("peptideInfo", "PhIPData", function(object, value){
 #   # check # of peptides match with assays
 #   if(nrow(value) != nrow(counts(object))){
@@ -364,47 +364,47 @@ S4Vectors::setValidity2("PhIPData", .validPhIPData)
 #   rownames()
 #
 # })
-# setGeneric("sampleInfo<-", function(object, value) standardGeneric("sampleInfo<-"))
-#
-# setGeneric("sampleNames<-", function(object, value) standardGeneric("sampleNames<-"))
-# setGeneric("peptideNames<-", function(object, value) standardGeneric("peptideNames<-"))
-#
-#
-# .replaceAssay <- function(object, assay, value){
-#
-#   # Ensure that target dimensions match
-#   num_samples <- nrow(sampleInfo(object))
-#   num_peptides <- nrow(peptideInfo(object))
-#
-#   if(num_samples == 0 & num_peptides == 0){
-#     value <- matrix(nrow = num_peptides, ncol = num_samples)
-#   }
-#   dim_match <- c(nrow(value) == num_peptides, ncol(value) == num_samples)
-#   msg <- paste0("Dimensions of ",
-#                 paste0(c("samples", "peptides")[!dim_match], collapse = " and "),
-#                 " do not match.")
-#   if(sum(dim_match) < 2) { stop(msg) }
-#
-#   # harmonize names
-#   rownames(value) <- rownames(peptideInfo(object))
-#   colnames(value) <- rownames(sampleInfo(object))
-#
-#   SummarizedExperiment::assays(object)[[assay]] <- DataFrame(value)
-#
-#   validObject(object)
-#   object
-# }
-#
-# ### ==============================================
-# ### Generics
-# ### ==============================================
-#
-# setMethod("isEmpty", "PhIPData", function(x) {
-#   isEmpty(counts(x)) & isEmpty(logfc(x)) &
-#     isEmpty(prob(x)) & isEmpty(peptideInfo(x)) &
-#     isEmpty(sampleInfo(x))
-# })
-#
-# ### ==============================================
-# ### Coercion methods
-# ### ==============================================
+setGeneric("sampleInfo<-", function(object, value) standardGeneric("sampleInfo<-"))
+
+setGeneric("sampleNames<-", function(object, value) standardGeneric("sampleNames<-"))
+setGeneric("peptideNames<-", function(object, value) standardGeneric("peptideNames<-"))
+
+
+.replaceAssay <- function(object, assay, value){
+
+  # Ensure that target dimensions match
+  num_samples <- nrow(sampleInfo(object))
+  num_peptides <- nrow(peptideInfo(object))
+
+  if(num_samples == 0 & num_peptides == 0){
+    value <- matrix(nrow = num_peptides, ncol = num_samples)
+  }
+  dim_match <- c(nrow(value) == num_peptides, ncol(value) == num_samples)
+  msg <- paste0("Dimensions of ",
+                paste0(c("samples", "peptides")[!dim_match], collapse = " and "),
+                " do not match.")
+  if(sum(dim_match) < 2) { stop(msg) }
+
+  # harmonize names
+  rownames(value) <- rownames(peptideInfo(object))
+  colnames(value) <- rownames(sampleInfo(object))
+
+  SummarizedExperiment::assays(object)[[assay]] <- DataFrame(value)
+
+  validObject(object)
+  object
+}
+
+### ==============================================
+### Generics
+### ==============================================
+
+setMethod("isEmpty", "PhIPData", function(x) {
+  isEmpty(counts(x)) & isEmpty(logfc(x)) &
+    isEmpty(prob(x)) & isEmpty(peptideInfo(x)) &
+    isEmpty(sampleInfo(x))
+})
+
+### ==============================================
+### Coercion methods
+### ==============================================
