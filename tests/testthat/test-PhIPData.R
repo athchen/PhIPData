@@ -32,8 +32,8 @@ test_that("a PhIPData object can be created if one or more of the parameters are
   expect_is(PhIPData(counts = counts, logfc = logfc), "PhIPData")
   expect_is(PhIPData(counts = counts, prob = prob), "PhIPData")
   expect_is(PhIPData(logfc = logfc, prob = prob), "PhIPData")
-  expect_error(PhIPData(peptideInfo = virscan_info), "Cannot create empty PhIPData object with only one of sampleInfo or peptideInfo.")
-  expect_error(PhIPData(sampleInfo = sampleInfo), "Cannot create empty PhIPData object with only one of sampleInfo or peptideInfo.")
+  expect_is(PhIPData(peptideInfo = virscan_info), "PhIPData")
+  expect_is(PhIPData(sampleInfo = sampleInfo), "PhIPData")
 })
 
 

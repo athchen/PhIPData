@@ -20,7 +20,7 @@ NULL
 #' Construct a \code{PhIPData} object.
 #'
 #' TODO Edit description. Empty objects are valid objects.
-#' Missing peptideInfo and sampleInfo are also valid objects.
+#' Missing peptideInfo and sampleInfo are also valid objects, empty assays can also be initialized
 #'
 #' @param counts a \code{matrix}, \code{data.frame}, or \code{\linkS4class{DataFrame}}
 #' of integer read counts.
@@ -68,72 +68,133 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
   .defaultNames <- if(length(.defaultNames) == 1) { rep(.defaultNames, 2) } else { .defaultNames }
 
   ## Check that input dimensions are matched.
-  row_dims <- c(nrow(counts), nrow(logfc), nrow(prob), nrow(peptideInfo))
-  col_dims <- c(ncol(counts), ncol(logfc), ncol(prob), nrow(sampleInfo))
-  if(length(unique(col_dims[col_dims != 0])) > 1){
-    stop("The number of samples is not consistent across inputs.")
-  }
-  if(length(unique(row_dims[row_dims != 0])) > 1){
-    stop("The number of peptides is not consistent across inputs.")
-  }
+  dims <- .checkDims(counts, logfc, prob, peptideInfo, sampleInfo)
+  if(is.character(dims)) { stop(dims) }
 
-  if(num_missing == 3 & sum(c(missing(sampleInfo), missing(peptideInfo))) == 1) {
-    stop("Cannot create empty PhIPData object with only one of sampleInfo or peptideInfo.")
-  }
+  # ## Check that both peptide and sample information are present
+  # if(num_missing == 3 & sum(c(missing(sampleInfo), missing(peptideInfo))) == 1) {
+  #   stop("Cannot create empty PhIPData object with only one of sampleInfo or peptideInfo.")
+  # }
 
   ## Get peptide names
+  peptide_names <- .getPeptideNames(counts, logfc, prob, peptideInfo, .defaultNames[1])
+
+  ## Get sample names
+  sample_names <- .getSampleNames(counts, logfc, prob, sampleInfo, .defaultNames[2])
+
+  ## Set missing assays to DataFrames with dimensions and names corresponding to
+  ## given matrices. All sample and peptide names are set to be identical
+  ## even if they were mismatched in the inputs.
+  assay_list <- .tidyAssays(assay_list, assays_missing, peptide_names, sample_names)
+
+  ## Define peptide information
+  tidied_pepInfo <- .tidyPeptideInfo(peptideInfo, peptide_names)
+  pep_meta <- tidied_pepInfo[["pep_meta"]]
+  pep_start <- tidied_pepInfo[["pep_start"]]
+  pep_end <- tidied_pepInfo[["pep_end"]]
+
+  row_info <- GenomicRanges::GRanges(seqnames = peptide_names,
+                                     ranges = IRanges::IRanges(start = pep_start, end = pep_end))
+  if(!S4Vectors::isEmpty(pep_meta)){ mcols(row_info) <- pep_meta }
+
+  ## Define sample information
+  if(missing(sampleInfo)){
+    sample_meta <- S4Vectors::DataFrame(row.names = sample_names)
+  } else {
+    sample_meta <- S4Vectors::DataFrame(sampleInfo, row.names = sample_names)
+  }
+
+  ## Make RangedSummarizedExperiment
+  se_object <- SummarizedExperiment::SummarizedExperiment(
+    assays = list(counts = assay_list[["counts"]],
+                  logfc = assay_list[["logfc"]],
+                  prob = assay_list[["prob"]]))
+
+  .PhIPData(se_object)
+}
+
+
+.checkDims <- function(counts, logfc, prob, peptideInfo, sampleInfo){
+
+  row_dims <- c(nrow(counts), nrow(logfc), nrow(prob), nrow(peptideInfo))
+  col_dims <- c(ncol(counts), ncol(logfc), ncol(prob), nrow(sampleInfo))
+
+  fixed_row <- if(length(unique(row_dims)) == 1) { unique(row_dims) } else { unique(row_dims[row_dims != 0]) }
+  fixed_col <- if(length(unique(col_dims)) == 1) { unique(col_dims) } else { unique(col_dims[col_dims != 0]) }
+
+  match <- c(length(fixed_row) == 1, length(fixed_col) == 1)
+
+  error <- paste0("The number of ",
+                  paste0(c("samples", "peptides")[! match], collapse = " and "),
+                  " differs across inputs.")
+
+  if(sum(match) < 2){ error } else { c(fixed_row, fixed_col) }
+}
+
+.getPeptideNames <- function(counts, logfc, prob, peptideInfo, default){
+
   peptide_names <- list(rownames(counts), rownames(logfc), rownames(prob), rownames(peptideInfo))
   peptide_names <- unique(peptide_names[sapply(peptide_names, length) != 0])
+
   peptide_warning <- "Peptide names are not identical across inputs. Using peptide names from "
+  default_error <- "Invalid '.defaultNames' supplied. Valid '.defaultNames' options are 'info', 'counts', 'logfc', or 'prob'."
 
   if (length(peptide_names) == 0) {
     peptide_names <- NULL
   } else if (length(peptide_names) == 1) {
     peptide_names <- peptide_names[[1]]
-  } else if (.defaultNames[1] == "info") {
+  } else if (default == "info") {
     warning(paste0(peptide_warning, "'peptideInfo'."))
     peptide_names <- rownames(peptideInfo)
-  } else if(.defaultNames[1] == "counts") {
+  } else if(default == "counts") {
     warning(paste0(peptide_warning, "'counts'."))
     peptide_names <- colnames(counts)
-  } else if (.defaultNames[1] == "logfc") {
+  } else if (default== "logfc") {
     warning(paste0(peptide_warning, "'logfc'."))
     peptide_names <- colnames(logfc)
-  } else if (.defaultNames[1] == "prob") {
+  } else if (default == "prob") {
     warning(paste0(peptide_warning, "'prob'."))
     peptide_names <- colnames(prob)
-  } else {
-    stop("Invalid '.defaultNames' supplied. Valid '.defaultNames' options are 'info', 'counts', 'logfc', or 'prob'.")
-  }
+  } else { stop(default_error) }
 
-  ## Get sample names
+  peptide_names
+}
+
+.getSampleNames <- function(counts, logfc, prob, sampleInfo, default){
+
   sample_names <- list(colnames(counts), colnames(logfc), colnames(prob), rownames(sampleInfo))
   sample_names <- unique(sample_names[sapply(sample_names, length) != 0])
+
   sample_warning <- "Sample names are not identical across inputs. Using sample names from "
+  default_error <- "Invalid '.defaultNames' supplied. Valid '.defaultNames' options are: 'info', 'counts', 'logfc', or 'prob'."
 
   if (length(sample_names) == 0) {
     sample_names <- NULL
   } else if (length(sample_names) == 1) {
     sample_names <- sample_names[[1]]
-  } else if (.defaultNames[2] == "info") {
+  } else if (default == "info") {
     warning(paste0(sample_warning, "'sampleInfo'."))
     sample_names <- rownames(sampleInfo)
-  } else if(.defaultNames[2] == "counts") {
+  } else if(default == "counts") {
     warning(paste0(sample_warning, "'counts'."))
     sample_names <- rownames(counts)
-  } else if (.defaultNames[2] == "logfc") {
+  } else if (default == "logfc") {
     warning(paste0(sample_warning, "'logfc'"))
     sample_names <- rownames(logfc)
-  } else if (.defaultNames[2] == "prob") {
+  } else if (default == "prob") {
     warning(paste0(sample_warning, "'prob'."))
     sample_names <- rownames(prob)
-  } else {
-    stop("Invalid '.defaultNames' supplied. Valid '.defaultNames' options are: 'info', 'counts', 'logfc', or 'prob'.")
-  }
+  } else { stop(default_error) }
 
-  ## Set missing assays to DataFrames with dimensions and names corresponding to
-  ## given matrices. All sample and peptide names are set to be identical
-  ## even if they were mismatched in the inputs.
+  sample_names
+}
+
+.tidyAssays <- function(assay_list, assays_missing, peptide_names, sample_names){
+
+  assays <- c("counts", "logfc", "prob")
+  assays_present <- assays[!assays %in% assays_missing]
+  num_missing <- length(assays_missing)
+
   if (num_missing == 3) {
     sapply(assays_missing, function(assay) assay_list[[assay]] <- S4Vectors::DataFrame())
   } else if (num_missing == 2) {
@@ -164,8 +225,11 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
     }
   }
 
-  # Define peptide information
-  if(missing(peptideInfo)){
+  assay_list
+}
+
+.tidyPeptideInfo <- function(peptideInfo, peptide_names){
+  if(all(dim(peptideInfo) == 0)){
     pep_meta <- S4Vectors::DataFrame(row.names = peptide_names)
     pep_start <- rep(0, length(peptide_names))
     pep_end <- rep(0, length(peptide_names))
@@ -182,7 +246,7 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
 
     msg <- if (sum(warnings[c("no_start", "no_end")]) > 0) {
       paste0("Missing peptide ", paste(c("start", "end")[warnings[c("no_start", "no_end")]], collapse = " and "),
-        " position information.")
+             " position information.")
     } else NULL
 
     msg <- if(any(warnings)) { paste0(msg, " Replacing missing values with 0.")} else { msg }
@@ -195,121 +259,160 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
     } else {
       pep_start <- if("pos_start" %in% colnames(peptideInfo)){
         replace(peptideInfo[, "pos_start"], is.na(peptideInfo[, "pos_start"]), 0)
-        } else {
+      } else {
         rep(0, length(peptide_names))
-        }
+      }
 
       pep_end <- if("pos_end" %in% colnames(peptideInfo)){
         replace(peptideInfo[, "pos_end"], is.na(peptideInfo[, "pos_end"]), 0)
       } else {
         rep(0, length(peptide_names))
       }
-
     }
-
   }
 
-  row_info <- GenomicRanges::GRanges(seqnames = peptide_names,
-                                     ranges = IRanges::IRanges(start = pep_start, end = pep_end))
-  if(!S4Vectors::isEmpty(pep_meta)){ mcols(row_info) <- pep_meta }
-
-  # Define sample information
-  if(missing(sampleInfo)){
-    sample_meta <- S4Vectors::DataFrame(row.names = sample_names)
-  } else {
-    sample_meta <- S4Vectors::DataFrame(sampleInfo)
-  }
-
-  # Make RangedSummarizedExperiment
-  se_object <- SummarizedExperiment::SummarizedExperiment(
-    assays = list(counts = assay_list[["counts"]],
-                  logfc = assay_list[["logfc"]],
-                  prob = assay_list[["prob"]]))
-
-  .PhIPData(se_object)
+  list(pep_meta = pep_meta,
+       pep_start = pep_start,
+       pep_end = pep_end)
 }
-
-### ==============================================
-### Validity
-### ==============================================
-
-## 1. counts cannot have negative entries
-.checkAssays <- function(object){
-  if(any(counts(object) < 0)) { "'counts' cannot have negative entries." } else NULL
-}
-
-## 2. dimensions of all assays must be the same
-.checkDims <- function(object){
-
-  sample_dims <- c(nrow(counts(object)), nrow(logfc(object)), nrow(prob(object)), nrow(sampleInfo(object)))
-  peptide_dims <- c(ncol(counts(object)), ncol(logfc(object)), ncol(prob(object)), nrow(peptideInfo(object)))
-
-  match <- c(length(unique(sample_dims)) == 1, length(unique(peptide_dims)))
-
-  error <- paste0("Dimensions do not match across ",
-                  paste0(c("samples", "peptides")[match], collapse = " and "), ".")
-
-  if(sum(match) > 1){ error } else { NULL }
-}
-
-## 3. sample and peptide names must be identical across all assays and annotation information.
-.checkNames <- function(object){
-
-  sample_names <- c(rownames(counts(object)), rownames(logfc(object)),
-                    rownames(prob(object)), rownames(sampleInfo(object)))
-  peptide_names <- c(colnames(counts(object)), colnames(logfc(object)),
-                     colnames(prob(object)), rownames(peptideInfo(object)))
-
-  match <- c(length(unique(sample_names)) == 1, length(unique(peptide_names)) == 1)
-
-  error <- paste0("Names do not match across ",
-                  paste0(c("samples", "peptides")[match], collapse = " and "), ".")
-
-  if(sum(match > 1)) { error } else { NULL }
-
-}
-
-.validPhIPData <- function(object){
-  if(!isEmpty(object)){
-    c(.checkAssays(object), .checkDims(object), .checkNames(object))
-  }
-}
-
-S4Vectors::setValidity2("PhIPData", .validPhIPData)
-
-### ==============================================
-### Getters
-### ==============================================
-
-setGeneric("counts", function(x) standardGeneric("counts"))
-setMethod("counts", "PhIPData", function(x) assays(x)[["counts"]])
-
-setGeneric("logfc", function(x) standardGeneric("logfc"))
-setMethod("logfc", "PhIPData", function(x) assays(x)[["logfc"]])
-
-setGeneric("prob", function(x) standardGeneric("prob"))
-setMethod("prob", "PhIPData", function(x) assays(x)[["prob"]])
-
-setGeneric("peptideInfo", function(x) standardGeneric("peptideInfo"))
-setMethod("peptideInfo", "PhIPData", function(x) rowRanges(x))
-
-setGeneric("sampleInfo", function(x) standardGeneric("sampleInfo"))
-setMethod("sampleInfo", "PhIPData", function(x) colData(x))
-
-### ==============================================
-### Setters
-### ==============================================
-
-### ==============================================
-### Generics
-### ==============================================
-
-setMethod("isEmpty", "PhIPData", function(x) {
-  isEmpty(counts(x)) & isEmpty(logfc(x)) &
-    isEmpty(prob(x)) & isEmpty(peptideInfo(x)) &
-    isEmpty(sampleInfo(x))
-})
-
-### ==============================================
-### Coercion methods
-### ==============================================
+#
+# ### ==============================================
+# ### Validity
+# ### ==============================================
+#
+# ## 1. counts cannot have negative entries
+# .checkAssays <- function(object){
+#   if(any(counts(object) < 0)) { "'counts' cannot have negative entries." } else NULL
+# }
+#
+# ## 2. dimensions of all assays must be the same
+# .checkDims <- function(object){
+#
+#   sample_dims <- c(ncol(counts(object)), ncol(logfc(object)), ncol(prob(object)), nrow(sampleInfo(object)))
+#   peptide_dims <- c(nrow(counts(object)), nrow(logfc(object)), nrow(prob(object)), nrow(peptideInfo(object)))
+#
+#   match <- c(length(unique(sample_dims)) == 1, length(unique(peptide_dims)) == 1)
+#
+#   error <- paste0("Dimensions do not match across ",
+#                   paste0(c("samples", "peptides")[!match], collapse = " and "), ".")
+#
+#   if(sum(match) < 2){ error } else { NULL }
+# }
+#
+# ## 3. sample and peptide names must be identical across all assays and annotation information.
+# .checkNames <- function(object){
+#
+#   sample_names <- c(colnames(counts(object)), colnames(logfc(object)),
+#                     colnames(prob(object)), rownames(sampleInfo(object)))
+#   peptide_names <- c(rownames(counts(object)), rownames(logfc(object)),
+#                      rownames(prob(object)), rownames(peptideInfo(object)))
+#
+#   match <- c(length(unique(sample_names)) == 1, length(unique(peptide_names)) == 1)
+#
+#   error <- paste0("Names do not match across ",
+#                   paste0(c("samples", "peptides")[!match], collapse = " and "), ".")
+#
+#   if(sum(match < 2)) { error } else { NULL }
+#
+# }
+#
+# .validPhIPData <- function(object){
+#   if(!isEmpty(object)){
+#     c(.checkAssays(object), .checkDims(object), .checkNames(object))
+#   }
+# }
+#
+# S4Vectors::setValidity2("PhIPData", .validPhIPData)
+#
+# ### ==============================================
+# ### Getters
+# ### ==============================================
+#
+# setGeneric("counts", function(x) standardGeneric("counts"))
+# setMethod("counts", "PhIPData", function(x) assays(x)[["counts"]])
+#
+# setGeneric("logfc", function(x) standardGeneric("logfc"))
+# setMethod("logfc", "PhIPData", function(x) assays(x)[["logfc"]])
+#
+# setGeneric("prob", function(x) standardGeneric("prob"))
+# setMethod("prob", "PhIPData", function(x) assays(x)[["prob"]])
+#
+# setGeneric("peptideInfo", function(x) standardGeneric("peptideInfo"))
+# setMethod("peptideInfo", "PhIPData", function(x) rowRanges(x))
+#
+# setGeneric("sampleInfo", function(x) standardGeneric("sampleInfo"))
+# setMethod("sampleInfo", "PhIPData", function(x) colData(x))
+#
+# ### ==============================================
+# ### Setters
+# ### ==============================================
+#
+# setGeneric("counts<-", function(object, value) standardGeneric("counts<-"))
+# setReplaceMethod("counts", "PhIPData", function(object, value) {
+#   .replaceAssay(object, "counts", value)
+# })
+#
+# setGeneric("logfc<-", function(object, value) standardGeneric("logfc<-"))
+# setReplaceMethod("logfc", "PhIPData", function(object, value) {
+#   .replaceAssay(object, "logfc", value)
+# })
+#
+# setGeneric("prob<-", function(object, value) standardGeneric("prob<-"))
+# setReplaceMethod("prob", "PhIPData", function(object, value) {
+#   .replaceAssay(object, "prob", value)
+# })
+#
+# setGeneric("peptideInfo<-", function(object, value) standardGeneric("peptideInfo<-"))
+# setReplaceMethod("peptideInfo", "PhIPData", function(object, value){
+#   # check # of peptides match with assays
+#   if(nrow(value) != nrow(counts(object))){
+#     stop("The number of peptides in the annotation differ from the number of peptides in `counts`.")
+#   }
+#
+#   rownames()
+#
+# })
+# setGeneric("sampleInfo<-", function(object, value) standardGeneric("sampleInfo<-"))
+#
+# setGeneric("sampleNames<-", function(object, value) standardGeneric("sampleNames<-"))
+# setGeneric("peptideNames<-", function(object, value) standardGeneric("peptideNames<-"))
+#
+#
+# .replaceAssay <- function(object, assay, value){
+#
+#   # Ensure that target dimensions match
+#   num_samples <- nrow(sampleInfo(object))
+#   num_peptides <- nrow(peptideInfo(object))
+#
+#   if(num_samples == 0 & num_peptides == 0){
+#     value <- matrix(nrow = num_peptides, ncol = num_samples)
+#   }
+#   dim_match <- c(nrow(value) == num_peptides, ncol(value) == num_samples)
+#   msg <- paste0("Dimensions of ",
+#                 paste0(c("samples", "peptides")[!dim_match], collapse = " and "),
+#                 " do not match.")
+#   if(sum(dim_match) < 2) { stop(msg) }
+#
+#   # harmonize names
+#   rownames(value) <- rownames(peptideInfo(object))
+#   colnames(value) <- rownames(sampleInfo(object))
+#
+#   SummarizedExperiment::assays(object)[[assay]] <- DataFrame(value)
+#
+#   validObject(object)
+#   object
+# }
+#
+# ### ==============================================
+# ### Generics
+# ### ==============================================
+#
+# setMethod("isEmpty", "PhIPData", function(x) {
+#   isEmpty(counts(x)) & isEmpty(logfc(x)) &
+#     isEmpty(prob(x)) & isEmpty(peptideInfo(x)) &
+#     isEmpty(sampleInfo(x))
+# })
+#
+# ### ==============================================
+# ### Coercion methods
+# ### ==============================================
