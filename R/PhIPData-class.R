@@ -68,10 +68,14 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
   if(is.character(dims)) { stop(dims) }
 
   ## Get peptide names
+  ## if no peptide names are given but there are peptides, assign names of "pep_rownumber"
   peptide_names <- .getPeptideNames(counts, logfc, prob, peptideInfo, .defaultNames[1])
+  peptide_names <- if(is.null(peptide_names) & dims[1] != 0){ paste0("pep_", 1:dims[1])} else {peptide_names}
 
   ## Get sample names
+  ## if no sample names are given but there are samples, assign names of "sample_colnumber"
   sample_names <- .getSampleNames(counts, logfc, prob, sampleInfo, .defaultNames[2])
+  sample_names <- if(is.null(sample_names) & dims[2] != 0) { paste0("sample_", 1:dims[2])} else {sample_names}
 
   ## Set missing assays to DataFrames with dimensions and names corresponding to
   ## given matrices. All sample and peptide names are set to be identical
@@ -142,13 +146,13 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
     peptide_names <- rownames(peptideInfo)
   } else if(default == "counts") {
     warning(paste0(peptide_warning, "'counts'."))
-    peptide_names <- colnames(counts)
+    peptide_names <- rownames(counts)
   } else if (default== "logfc") {
     warning(paste0(peptide_warning, "'logfc'."))
-    peptide_names <- colnames(logfc)
+    peptide_names <- rownames(logfc)
   } else if (default == "prob") {
     warning(paste0(peptide_warning, "'prob'."))
-    peptide_names <- colnames(prob)
+    peptide_names <- rownames(prob)
   } else { stop(default_error) }
 
   peptide_names
@@ -171,13 +175,13 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
     sample_names <- rownames(sampleInfo)
   } else if(default == "counts") {
     warning(paste0(sample_warning, "'counts'."))
-    sample_names <- rownames(counts)
+    sample_names <- colnames(counts)
   } else if (default == "logfc") {
     warning(paste0(sample_warning, "'logfc'"))
-    sample_names <- rownames(logfc)
+    sample_names <- colnames(logfc)
   } else if (default == "prob") {
     warning(paste0(sample_warning, "'prob'."))
-    sample_names <- rownames(prob)
+    sample_names <- colnames(prob)
   } else { stop(default_error) }
 
   sample_names
@@ -200,8 +204,8 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
 
   for(assay in assays_present){
     assay_list[[assay]] <- S4Vectors::DataFrame(assay_list[[assay]])
-    rownames(assay_list[[assay]]) <- peptide_names
-    colnames(assay_list[[assay]]) <- sample_names
+    if(!is.null(peptide_names)) { rownames(assay_list[[assay]]) <- peptide_names }
+    if(!is.null(sample_names)) { colnames(assay_list[[assay]]) <- sample_names }
   }
 
   assay_list
@@ -246,7 +250,7 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
       pep_end <- if("pos_end" %in% colnames(peptideInfo)){
         replace(peptideInfo[["pos_end"]], is.na(peptideInfo[, "pos_end"]), 0)
       } else {
-        rep(0, length(peptide_names))
+        rep(0, length(length(peptide_names)))
       }
     }
   }
@@ -278,7 +282,6 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
                      rownames(prob(object)), names(peptideInfo(object)))
 
   match <- c(length(unique(sample_names)) == 1, length(unique(peptide_names)) == 1)
-  print(match)
 
   error <- paste0("Names do not match across ",
                   paste0(c("samples", "peptides")[!match], collapse = " and "), ".")

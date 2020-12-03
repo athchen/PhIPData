@@ -1,13 +1,13 @@
 # PhIPData
 
 # To Do
+* Make a show method
 * Make setters
-  + Modifiy peptide/sample metadata
+  + Modify peptide/sample metadata
   + Function to modify all sample/peptide names
 * Make subset functions
   + Make function to subset peptides by virus
 * Make tests for
-  + Getters
   + Setters
   + Subsetters
 * Add documentation

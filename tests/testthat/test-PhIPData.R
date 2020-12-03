@@ -1,5 +1,6 @@
-context("PhIPData constructor works for a variety of poorly-defined inputs")
+context("Base PhIPData API works.")
 
+# Set-up ----------------------------------------
 virscan_info <- readr::read_tsv("../testdata/VirScan_annotation.tsv",
                                 col_types = readr::cols(
                                   .default = readr::col_character(),
@@ -8,12 +9,17 @@ virscan_info <- readr::read_tsv("../testdata/VirScan_annotation.tsv",
                                   pos_start = readr::col_double(),
                                   pos_end = readr::col_double(),
                                   pro_len = readr::col_double()
-                                ))
+                                )) %>%
+  as.data.frame()
+
 n_samples <- 96L
 n_peptides <- nrow(virscan_info)
-counts <- matrix(runif(n_samples*n_peptides, min = 1, max = 1e6), nrow = n_peptides)
-logfc <- matrix(rnorm(n_samples*n_peptides, mean = 0, sd = 10), nrow = n_peptides)
-prob <- matrix(rbeta(n_samples*n_peptides, shape1 = 1, shape2 = 1), nrow = n_peptides)
+counts <- matrix(runif(n_samples*n_peptides, min = 1, max = 1e6),
+                 nrow = n_peptides)
+logfc <- matrix(rnorm(n_samples*n_peptides, mean = 0, sd = 10),
+                nrow = n_peptides)
+prob <- matrix(rbeta(n_samples*n_peptides, shape1 = 1, shape2 = 1),
+               nrow = n_peptides)
 
 sampleInfo <- DataFrame(sample_name = paste0("sample", 1:n_samples),
                         gender = sample(c("M", "F"), n_samples, replace = TRUE))
@@ -21,6 +27,7 @@ sampleInfo <- DataFrame(sample_name = paste0("sample", 1:n_samples),
 rownames(counts) <- rownames(logfc) <- rownames(prob) <- rownames(virscan_info) <- paste0("pep_", 1:n_peptides)
 colnames(counts) <- colnames(logfc) <- colnames(prob) <- rownames(sampleInfo) <- paste0("sample_", 1:n_samples)
 
+# Test missing params ----------------------------------------
 test_that("a PhIPData object can be created if one or more of the parameters are missing.", {
 
   # Set up information for test cases
@@ -40,7 +47,8 @@ test_that("a PhIPData object can be created if one or more of the parameters are
   # one assay and metadata
   expect_is(PhIPData(counts = counts, sampleInfo = sampleInfo), "PhIPData")
   expect_is(PhIPData(counts = counts, peptideInfo = virscan_info), "PhIPData")
-  expect_is(PhIPData(counts = counts, peptideInfo = virscan_info, sampleInfo = sampleInfo), "PhIPData")
+  expect_is(PhIPData(counts = counts, peptideInfo = virscan_info, sampleInfo = sampleInfo),
+            "PhIPData")
 
   # only two assays are present
   expect_is(PhIPData(counts = counts, logfc = logfc), "PhIPData")
@@ -65,6 +73,67 @@ test_that("a PhIPData object can be created if one or more of the parameters are
                      peptideInfo = virscan_info, sampleInfo = sampleInfo), "PhIPData")
 })
 
+# Test error-causing inputs ----------------------------------------
+test_that("invalid inputs return proper errors", {
+
+  # negative counts
+  expect_error(PhIPData(counts = matrix(runif(25, -10, 10), nrow = 5)),
+               "'counts' cannot have negative entries.")
+
+  # incompatible dimensions
+  expect_error(PhIPData(counts = counts, logfc = DataFrame(matrix(nrow = 5, ncol = 5))),
+               "The number of .* differs across inputs")
+
+  # invalid default input (only a problem with names are mismatched)
+  expect_is(PhIPData(counts, logfc, prob, virscan_info, sampleInfo, .defaultNames = "test"), "PhIPData")
+  rownames(logfc) <- paste0("logfc_", rownames(logfc))
+  expect_error(PhIPData(counts, logfc, prob, virscan_info, sampleInfo, .defaultNames = "test"),
+               "Invalid '.defaultNames' supplied.")
+})
+
+# Test name-fixing code ----------------------------------------
+expect_names <- function(object, list){
+  names <- dimnames(object)
+  return(all(names[[1]] == list[[1]]) & all(names[[2]] == list[[2]]))
+}
+
+test_that("dimension names are set correctly when mismatched.", {
+  assay_list <- list(counts = counts, logfc = logfc, prob = prob)
+  for(assay in c("counts","prob")){
+    rownames(assay_list[[assay]]) <- paste0(assay, "_", rownames(assay_list[[assay]]))
+    colnames(assay_list[[assay]]) <- paste0(assay, "_", colnames(assay_list[[assay]]))
+  }
+  colnames(assay_list[["logfc"]]) <- paste0("logfc_", colnames(assay_list[["logfc"]]))
+
+  # Check defaults work
+  expect_true(expect_names(PhIPData(assay_list[["counts"]], assay_list[["logfc"]],
+                        assay_list[["prob"]], virscan_info, sampleInfo),
+                        list(rownames(peptideInfo), rownames(sampleInfo))))
+
+  # Check single default input works as expected
+  expect_true(expect_names(PhIPData(assay_list[["counts"]], assay_list[["logfc"]],
+                                    assay_list[["prob"]], virscan_info, sampleInfo,
+                                    .defaultNames = "counts"),
+                           dimnames(assay_list[["counts"]])))
+
+  # expect_true(expect_names(PhIPData(assay_list[["counts"]], assay_list[["logfc"]],
+  #                                   assay_list[["prob"]], virscan_info, sampleInfo,
+  #                                   .defaultNames = "logfc"),
+  #                          dimnames(assay_list[["logfc"]])))
+  #
+  # expect_true(expect_names(PhIPData(assay_list[["counts"]], assay_list[["logfc"]],
+  #                                   assay_list[["prob"]], virscan_info, sampleInfo,
+  #                                   .defaultNames = "prob"),
+  #                          dimnames(assay_list[["prob"]])))
+
+  # check double default and extra default input
+  expect_true(expect_names(PhIPData(assay_list[["counts"]], assay_list[["logfc"]],
+                                    assay_list[["prob"]], virscan_info, sampleInfo,
+                                    .defaultNames = c("counts", "logfc", "extraneous")),
+                           list(rownames(assay_list[["counts"]]), colnames(assay_list[["logfc"]]))))
+})
+
+# Test getters ----------------------------------------
 test_that("getter functions operate as expected.", {
   phip_obj <- PhIPData(counts = counts, logfc = logfc, prob = prob,
                        sampleInfo = sampleInfo, peptideInfo = virscan_info)
@@ -75,5 +144,3 @@ test_that("getter functions operate as expected.", {
   expect_is(peptideInfo(phip_obj), "GRanges")
   expect_is(sampleInfo(phip_obj), "DataFrame")
 })
-
-
