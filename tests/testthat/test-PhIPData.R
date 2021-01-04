@@ -1,4 +1,4 @@
-context("Base PhIPData API works.")
+context("Base PhIPData API functions as expected.")
 
 # Set-up ----------------------------------------
 virscan_info <- readr::read_tsv("../testdata/VirScan_annotation.tsv",
@@ -97,7 +97,7 @@ expect_names <- function(object, list){
   return(all(names[[1]] == list[[1]]) & all(names[[2]] == list[[2]]))
 }
 
-test_that("dimension names are set correctly when mismatched.", {
+test_that("dimension names are set correctly when inputs are mismatched", {
   assay_list <- list(counts = counts, logfc = logfc, prob = prob)
   for(assay in c("counts","prob")){
     rownames(assay_list[[assay]]) <- paste0(assay, "_", rownames(assay_list[[assay]]))
@@ -134,7 +134,7 @@ test_that("dimension names are set correctly when mismatched.", {
 })
 
 # Test getters ----------------------------------------
-test_that("getter functions operate as expected.", {
+test_that("getter functions return objects of the expected class", {
   phip_obj <- PhIPData(counts = counts, logfc = logfc, prob = prob,
                        sampleInfo = sampleInfo, peptideInfo = virscan_info)
 
@@ -144,3 +144,51 @@ test_that("getter functions operate as expected.", {
   expect_is(peptideInfo(phip_obj), "GRanges")
   expect_is(sampleInfo(phip_obj), "DataFrame")
 })
+
+# Test setters ----------------------------------------
+test_that("setter functions change the object as desired", {
+  phip_obj <- PhIPData(counts = counts, logfc = logfc, prob = prob,
+                       sampleInfo = sampleInfo, peptideInfo = virscan_info)
+
+  # Check assay replacement, note that replacement_matrix has different dimnames than phip_obj
+  replacement_matrix <- matrix(runif(n_samples*n_peptides, min = 1, max = 1e6),
+                               nrow = n_peptides)
+  counts(phip_obj) <- logfc(phip_obj) <- prob(phip_obj) <- replacement_matrix
+
+  expect_equal(unname(as.matrix(counts(phip_obj))), replacement_matrix)
+  expect_equal(unname(as.matrix(logfc(phip_obj))), replacement_matrix)
+  expect_equal(unname(as.matrix(prob(phip_obj))), replacement_matrix)
+
+  # Check peptideInfo replacement, new info has different rownames
+  peptideInfo(phip_obj) <- virscan_info[, 1:10]
+  pep_tidied <- .tidyPeptideInfo(virscan_info[, 1:10], dimnames(phip_obj)[[1]])
+  pep_expect <- GenomicRanges::GRanges(seqnames = dimnames(phip_obj)[[1]],
+                                       ranges = IRanges::IRanges(start = pep_tidied[["pep_start"]],
+                                                                 end = pep_tidied[["pep_end"]]))
+  mcols(pep_expect) <- pep_tidied[["pep_meta"]]
+
+  expect_equal(unname(peptideInfo(phip_obj)), pep_expect)
+
+  # Check sampleInfo replacement, new info has different rownames
+  sampleInfo$HAART <- sample(c("yes", "no"), n_samples, replace = TRUE)
+  sampleInfo(phip_obj) <- sampleInfo
+
+  expect_equal(sampleInfo(phip_obj), sampleInfo)
+
+})
+
+# Test coercion functions -----------
+test_that("coercion functions work as expected", {
+  phip_obj <- PhIPData(counts = counts, logfc = logfc, prob = prob,
+                       sampleInfo = sampleInfo, peptideInfo = virscan_info)
+
+  expect_is(as(phip_obj, "list"), "list")
+  expect_is(as(phip_obj, "List"), "List")
+  expect_is(as(phip_obj, "DGEList"), "DGEList")
+
+  expect_is(as(as(phip_obj, "list"), "PhIPData"), "PhIPData")
+  expect_is(as(as(phip_obj, "List"), "PhIPData"), "PhIPData")
+  expect_is(as(as(phip_obj, "DGEList"), "PhIPData"), "PhIPData")
+})
+
+
