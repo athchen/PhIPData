@@ -10,6 +10,7 @@ PhIPData(
   prob = S4Vectors::DataFrame(),
   peptideInfo = S4Vectors::DataFrame(),
   sampleInfo = S4Vectors::DataFrame(),
+  metadata = list(),
   .defaultNames = "info",
   ...
 )
@@ -35,6 +36,8 @@ of other convenient functions for filtering peptides.}
 information. Unique sample identifiers can be specific via column names of the
 \code{counts}, \code{logfc}, \code{prob}, or \code{sampleInfo} objects.}
 
+\item{metadata}{a \code{list} object containing experiment-specific metadata}
+
 \item{.defaultNames}{vector of default names to use when the sample and peptide ID
 disagree across the metadata and the \code{counts}, \code{logfc}, and \code{prob} matrices.
 If \code{.defaultNames} is of length 1, the same source is used for both peptide and
@@ -50,5 +53,5 @@ Valid options are:
 }
 \description{
 TODO Edit description. Empty objects are valid objects.
-Missing peptideInfo and sampleInfo are also valid objects.
+Missing peptideInfo and sampleInfo are also valid objects, empty assays can also be initialized
 }

@@ -19,11 +19,16 @@ Imports:
     methods, 
     GenomicRanges, 
     IRanges,
-    S4Vectors
+    S4Vectors, 
+    edgeR,
+    cli
 Suggests:
     testthat
 biocViews: Infrastructure, DataRepresentation
 BugReports: https://github.com/athchen/PhIPData/issues
 Collate: 
     'PhIPData-class.R'
+    'alias.R'
+    'getPeptides.R'
+    'library.R'
 RoxygenNote: 7.1.1
