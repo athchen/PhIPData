@@ -112,7 +112,6 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
   .PhIPData(se_object)
 }
 
-
 .checkDims <- function(counts, logfc, prob, peptideInfo, sampleInfo){
 
   row_dims <- c(nrow(counts), nrow(logfc), nrow(prob), nrow(peptideInfo))
