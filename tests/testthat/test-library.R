@@ -56,6 +56,6 @@ test_that("libraries can be created and used to make valid PhIPData objects.", {
                        peptideInfo = getLibrary("virscan"))
 
   # clean-up test space
-  Sys.setenv(LIBRARY_PATH = "")
-  file.remove(paste0(extdata_loc, "/virscan.rds"))
+  Sys.setenv(PHIP_LIBRARY_PATH = "")
+  # file.remove(paste0(extdata_loc, "/virscan.rds"))
 })

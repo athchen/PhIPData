@@ -35,5 +35,10 @@ getLibrary <- function(library){
 #' @export
 makeLibrary <- function(library, name){
   path <- paste0(getLibraryPath(), "/", name, ".rds")
-  saveRDS(library, file = path)
+
+  write <- if(file.exists(path)){
+    menu(c("Yes", "No"),
+         title = "The library files already exists. Do you want to overwrite the file?")
+  } else { 1 }
+  if(write == 1) { saveRDS(library, file = path) }
 }
