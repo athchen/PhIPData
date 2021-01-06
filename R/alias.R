@@ -14,7 +14,7 @@ getAliasPath <- function(){
 #' @export
 setAliasPath <- function(path){
   if(!is.character(path) | !file.exists(path)){
-    stop("Invalid specified file")
+    stop("Invalid alias file location.")
   } else if (!grepl("(rda|RData)", path)) {
     stop("Invalid file type.")
   } else {
@@ -29,7 +29,7 @@ load(getAliasPath(), envir = alias_env)
 #' @export
 getAlias <- function(virus){
   if(!virus %in% alias_env$alias$alias){
-    stop("Virus does not exist in alias database.")
+    stop("Virus does not exist in the alias database.")
   } else {
     alias_env$alias$pattern[alias_env$alias$alias == virus]
   }

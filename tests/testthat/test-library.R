@@ -4,6 +4,9 @@ test_that("libraries can be created and used to make valid PhIPData objects.", {
   library_loc <- system.file("libraries", package = "PhIPData")
   expect_equal(getLibraryPath(), library_loc)
 
+  # Test library path functions
+  expect_error(setLibraryPath("invalid_path"), "Invalid specified path.")
+
   extdata_loc <- system.file("extdata", package = "PhIPData")
   setLibraryPath(extdata_loc)
   expect_equal(getLibraryPath(), extdata_loc)

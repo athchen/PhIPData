@@ -126,21 +126,21 @@ test_that("dimension names are set correctly when inputs are mismatched", {
                                     .defaultNames = "counts"),
                            dimnames(assay_list[["counts"]])))
 
-  # expect_true(expect_names(PhIPData(assay_list[["counts"]],
-  #                                   assay_list[["logfc"]],
-  #                                   assay_list[["prob"]],
-  #                                   virscan_info,
-  #                                   sampleInfo,
-  #                                   .defaultNames = "logfc"),
-  #                          dimnames(assay_list[["logfc"]])))
-  #
-  # expect_true(expect_names(PhIPData(assay_list[["counts"]],
-  #                                   assay_list[["logfc"]],
-  #                                   assay_list[["prob"]],
-  #                                   virscan_info,
-  #                                   sampleInfo,
-  #                                   .defaultNames = "prob"),
-  #                          dimnames(assay_list[["prob"]])))
+  expect_true(expect_names(PhIPData(assay_list[["counts"]],
+                                    assay_list[["logfc"]],
+                                    assay_list[["prob"]],
+                                    virscan_info,
+                                    sampleInfo,
+                                    .defaultNames = "logfc"),
+                           dimnames(assay_list[["logfc"]])))
+
+  expect_true(expect_names(PhIPData(assay_list[["counts"]],
+                                    assay_list[["logfc"]],
+                                    assay_list[["prob"]],
+                                    virscan_info,
+                                    sampleInfo,
+                                    .defaultNames = "prob"),
+                           dimnames(assay_list[["prob"]])))
 
   # check double default and extra default input do not generate errors
   expect_true(expect_names(PhIPData(assay_list[["counts"]],
