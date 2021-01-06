@@ -8,7 +8,7 @@ getLibraryPath <- function(){
   path <- Sys.getenv("LIBRARY_PATH", "")
 
   if (path == ""){
-    system.file(package = "PhIPData", "libraries")
+    system.file(package = "PhIPData", "phip_libraries")
   } else {
     path
   }
