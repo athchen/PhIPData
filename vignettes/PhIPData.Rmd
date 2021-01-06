@@ -1,0 +1,69 @@
+---
+title: "PhIPData: A Container for PhIP-Seq Experiments"
+author: "Athena Chen, Rob Scharpf, and Ingo Ruczinski"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{PhIPData: A Container for PhIP-Seq Experiments}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document:
+    number_sections: yes
+    toc: true
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Installation
+
+We recommend installing the stable release version of `PhIPData` in Bioconductor. This can be done using `BiocManager`:
+
+```{r, eval = FALSE}
+if (!require("BiocManager"))
+    install.packages("BiocManager")
+    
+BiocManager::install("PhIPData")
+```
+
+To load the package:
+
+```{r, include = TRUE, results = "hide", message = FALSE, warning = FALSE}
+#library(PhIPData)
+```
+
+# Introduction
+
+The `PhIPData` class stores rectangular matrices of experimental results from phage-immunoprecipitation sequencing (PhIP-Seq) experiments. 
+
+* Extends RangedSummarizedExperiments
+  + Many of the same useful functions are inherited, like subsetting by metadata, row/column name accessors, etc. 
+  + Conceptually extends the idea of coordinating metadata and data when subsetting (with the subsetPeptides function)
+  + Extends GRanges subsetting
+* Stores metadata for peptides and samples along with the raw reads, log10 fc, and some p-value indicating enrichment
+
+# Components of a PhIPData Object
+
+```{r, echo = FALSE, fig.cap = "", out.width = "\\maxwidth"}
+knitr::include_graphics("extras/PhIPData.png")
+```
+
+## Assays (`counts`, `logfc`, `prob`)
+
+## Peptide metadata
+
+## Sample metadata
+
+## Experimental metadata
+
+# Creating a PhIPData object
+
+## Using template libraries
+
+# Subsetting PhIPData objects
+
+# `sessionInfo()`
