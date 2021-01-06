@@ -5,6 +5,7 @@
 #' @param object a \code{PhIPData} object
 #' @param virus regex indicating the virus of interest
 #' @return a \code{PhIPData} object
+#' @export
 getPeptides <- function(object, virus) {
   if(!"species" %in% colnames(mcols(peptideInfo(object)))){
     stop("Peptide metadata does not contain `species` information.")

@@ -1,5 +1,6 @@
 #' @include PhIPData-class.R
 
+#' @export
 getAliasPath <- function(){
   path <- Sys.getenv("ALIAS_PATH", "")
 
@@ -10,14 +11,17 @@ getAliasPath <- function(){
   }
 }
 
+#' @export
 setAliasPath <- function(path){
-  if(!is.character(path)){
+  if(!is.character(path) | !dir.exists(path)){
     stop("Invalid specified path.")
   } else {
     Sys.setenv(ALIAS_PATH = path)
   }
 }
 
+
+#' @export
 getAlias <- function(virus){
   if(!virus %in% alias$alias){
     stop("Virus does not exist in alias database.")
@@ -26,6 +30,7 @@ getAlias <- function(virus){
   }
 }
 
+#' @export
 setAlias <- function(virus, pattern){
 
   if(virus %in% alias$alias){
@@ -45,6 +50,7 @@ setAlias <- function(virus, pattern){
   load(alias_loc, envir=parent.env(environment()))
 }
 
+#' @export
 deleteAlias <- function(virus){
 
   if(!virus %in% alias$alias){

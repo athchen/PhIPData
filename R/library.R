@@ -3,6 +3,7 @@
 #'
 #'
 
+#' @export
 getLibraryPath <- function(){
   path <- Sys.getenv("LIBRARY_PATH", "")
 
@@ -14,6 +15,7 @@ getLibraryPath <- function(){
 
 }
 
+#' @export
 setLibraryPath <- function(path){
 
   if(!is.character(path) | !dir.exists(path)){
@@ -24,11 +26,13 @@ setLibraryPath <- function(path){
 
 }
 
+#' @export
 getLibrary <- function(library){
   path <- paste0(getLibraryPath(), "/", library, ".rds")
   readRDS(path)
 }
 
+#' @export
 makeLibrary <- function(library, name){
   path <- paste0(getLibraryPath(), "/", name, ".rds")
   saveRDS(library, file = path)
