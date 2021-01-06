@@ -1,10 +1,10 @@
 context("Library creators and accessors work as expected.")
 
 test_that("libraries can be created and used to make valid PhIPData objects.", {
-  library_loc <- system.file("inst", "libraries", package = "PhIPData")
+  library_loc <- system.file("libraries", package = "PhIPData")
   expect_equal(getLibraryPath(), library_loc)
 
-  extdata_loc <- system.file("inst", "extdata", package = "PhIPData")
+  extdata_loc <- system.file("extdata", package = "PhIPData")
   setLibraryPath(extdata_loc)
   expect_equal(getLibraryPath(), extdata_loc)
 
