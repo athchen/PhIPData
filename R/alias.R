@@ -23,47 +23,52 @@ setAliasPath <- function(path){
 }
 
 
+alias_env <- new.env(parent = emptyenv())
+load(getAliasPath(), envir = alias_env)
+
 #' @export
 getAlias <- function(virus){
-  if(!virus %in% alias$alias){
+  if(!virus %in% alias_env$alias$alias){
     stop("Virus does not exist in alias database.")
   } else {
-    alias$pattern[alias$alias == virus]
+    alias_env$alias$pattern[alias_env$alias$alias == virus]
   }
 }
 
 #' @export
 setAlias <- function(virus, pattern){
 
-  if(virus %in% alias$alias){
-    if(alias$pattern[alias$alias == virus] == pattern) {
+  if(virus %in% alias_env$alias$alias){
+
+    if(alias_env$alias$pattern[alias_env$alias$alias == virus] == pattern) {
       stop("Alias already exists in the alias database.")
     } else {
-      alias$pattern[alias$alias == virus] <- pattern
+      alias_env$alias$pattern[alias_env$alias$alias == virus] <- pattern
     }
+
   } else {
-    alias <- rbind(alias,
-                   data.frame(alias = virus, pattern = pattern))
+    alias_env$alias <- rbind(alias_env$alias,
+                             data.frame(alias = virus, pattern = pattern))
   }
 
-  # IS THIS TOO FRAGILE?
-  alias_loc <- getAliasPath()
-  save(list = c("alias"), file = alias_loc)
-  load(alias_loc, envir=parent.env(environment()))
+  alias_env$alias_loc <- getAliasPath()
+  save(alias,
+       envir = alias_env,
+       file = alias_env$alias_loc)
 }
 
 #' @export
 deleteAlias <- function(virus){
 
-  if(!virus %in% alias$alias){
+  if(!virus %in% alias_env$alias$alias){
     stop("Virus does not exist in the alias database.")
   } else {
-    virus_index <- which(alias$alias == virus)
-    alias <- alias[-virus_index, ]
+    virus_index <- which(alias_env$alias$alias == virus)
+    alias_env$alias <- alias_env$alias[-virus_index, ]
   }
 
-  # IS THIS TOO FRAGILE?
-  alias_loc <- getAliasPath()
-  save(list = c("alias"), file = alias_loc)
-  load(alias_loc, envir=parent.env(environment()))
+  alias_env$alias_loc <- getAliasPath()
+  save(alias,
+       envir = alias_env,
+       file = alias_env$alias_loc)
 }

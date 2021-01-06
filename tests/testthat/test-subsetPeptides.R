@@ -44,16 +44,17 @@ colnames(counts) <- colnames(logfc) <-
 phip_obj <- PhIPData(counts = counts, logfc = logfc, prob = prob,
                      sampleInfo = sampleInfo, peptideInfo = virscan_info)
 
-num_ebv <- sum(grepl(alias$pattern[1], virscan_info$species))
+pattern <- getAlias("EBV")
+num_ebv <- sum(grepl(pattern, virscan_info$species))
 
 test_that("PhIPData objects can be subsetted by virus", {
 
-  expect_is(getPeptides(phip_obj, alias$pattern[1]), "PhIPData")
-  expect_equal(nrow(getPeptides(phip_obj, alias$pattern[1])), num_ebv)
+  expect_is(getPeptides(phip_obj, pattern), "PhIPData")
+  expect_equal(nrow(getPeptides(phip_obj, pattern)), num_ebv)
 
   peptideInfo(phip_obj) <- virscan_info %>%
     dplyr::rename(taxonomy_species = species)
 
-  expect_error(getPeptides(phip_obj, alias$pattern[1]),
+  expect_error(getPeptides(phip_obj, pattern),
                "Peptide metadata does not contain `species` information.")
 })
