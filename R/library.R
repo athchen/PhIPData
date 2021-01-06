@@ -5,10 +5,10 @@
 
 #' @export
 getLibraryPath <- function(){
-  path <- Sys.getenv("LIBRARY_PATH", "")
+  path <- Sys.getenv("PHIP_LIBRARY_PATH", "")
 
   if (path == ""){
-    system.file(package = "PhIPData", "phip_libraries")
+    system.file(package = "PhIPData", "libraries")
   } else {
     path
   }
@@ -21,7 +21,7 @@ setLibraryPath <- function(path){
   if(!is.character(path) | !dir.exists(path)){
     stop("Invalid specified path.")
   } else {
-    Sys.setenv(LIBRARY_PATH = normalizePath(path))
+    Sys.setenv(PHIP_LIBRARY_PATH = normalizePath(path))
   }
 
 }
