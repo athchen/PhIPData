@@ -5,7 +5,7 @@ getAliasPath <- function(){
   path <- Sys.getenv("ALIAS_PATH", "")
 
   if (path == ""){
-    system.file(package = "PhIPData", "R/sysdata.rda")
+    system.file(package = "PhIPData", "extdata/alias.rda")
   } else {
     path
   }
@@ -13,8 +13,10 @@ getAliasPath <- function(){
 
 #' @export
 setAliasPath <- function(path){
-  if(!is.character(path) | !dir.exists(path)){
-    stop("Invalid specified path.")
+  if(!is.character(path) | !file.exists(path)){
+    stop("Invalid specified file")
+  } else if (!grepl("(rda|RData)", path)) {
+    stop("Invalid file type.")
   } else {
     Sys.setenv(ALIAS_PATH = path)
   }
