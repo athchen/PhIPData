@@ -4,7 +4,7 @@ getAliasPath <- function(){
   path <- Sys.getenv("ALIAS_PATH", "")
 
   if (path == ""){
-    system.file(package = "PhIPData", "..", "R/sysdata.rda")
+    system.file(package = "PhIPData", "R/sysdata.rda")
   } else {
     path
   }

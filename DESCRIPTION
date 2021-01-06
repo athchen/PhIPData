@@ -23,12 +23,13 @@ Imports:
     edgeR,
     cli
 Suggests:
+    BiocStyle, 
     testthat,
     knitr,
     rmarkdown,
     covr, 
     readr, 
-    dplyr
+    dplyr, 
 biocViews: Infrastructure, DataRepresentation
 BugReports: https://github.com/athchen/PhIPData/issues
 Collate: 
