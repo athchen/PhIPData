@@ -26,13 +26,15 @@ Suggests:
     testthat,
     knitr,
     rmarkdown,
-    covr
+    covr, 
+    readr, 
+    dplyr
 biocViews: Infrastructure, DataRepresentation
 BugReports: https://github.com/athchen/PhIPData/issues
 Collate: 
     'PhIPData-class.R'
     'alias.R'
-    'getPeptides.R'
     'library.R'
+    'subsetPeptides.R'
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr

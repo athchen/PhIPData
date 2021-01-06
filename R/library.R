@@ -7,7 +7,7 @@ getLibraryPath <- function(){
   path <- Sys.getenv("LIBRARY_PATH", "")
 
   if (path == ""){
-    stop("Library path does not exist.")
+    system.file(package = "PhIPData", "extdata")
   } else {
     path
   }

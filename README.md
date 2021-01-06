@@ -37,18 +37,20 @@ The goal of PhIPData is to …
 
 ## Installation
 
-You can install the released version of PhIPData from
-[CRAN](https://CRAN.R-project.org) with:
+We recommend installing the stable release version of `PhIPData` in
+Bioconductor. This can be done using `BiocManager`:
 
 ``` r
-install.packages("PhIPData")
+if (!require("BiocManager"))
+    install.packages("BiocManager")
+    
+BiocManager::install("PhIPData")
 ```
 
-And the development version from [GitHub](https://github.com/) with:
+To load the package:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("athchen/PhIPData")
+#library(PhIPData)
 ```
 
 ## Example
