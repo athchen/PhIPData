@@ -23,7 +23,10 @@ Imports:
     edgeR,
     cli
 Suggests:
-    testthat
+    testthat,
+    knitr,
+    rmarkdown,
+    covr
 biocViews: Infrastructure, DataRepresentation
 BugReports: https://github.com/athchen/PhIPData/issues
 Collate: 
@@ -32,3 +35,4 @@ Collate:
     'getPeptides.R'
     'library.R'
 RoxygenNote: 7.1.1
+VignetteBuilder: knitr
