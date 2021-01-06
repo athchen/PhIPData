@@ -12,6 +12,7 @@ test_that("the alias database can be accessed and modified", {
 
   # Check remove function
   deleteAlias("test_virus")
-  expect_error(getAlias("test_virus"), "Virus does not exist in alias database.")
+  expect_error(getAlias("test_virus"),
+               "Virus does not exist in alias database.")
 
 })
