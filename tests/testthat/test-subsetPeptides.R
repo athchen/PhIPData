@@ -49,6 +49,7 @@ num_ebv <- sum(grepl(pattern, virscan_info$species))
 
 test_that("PhIPData objects can be subsetted by virus", {
 
+  skip("Reworking class")
   expect_is(getPeptides(phip_obj, pattern), "PhIPData")
   expect_equal(nrow(getPeptides(phip_obj, pattern)), num_ebv)
 

@@ -175,8 +175,6 @@ test_that("invalid inputs return proper errors", {
                "Invalid '.defaultNames' supplied.")
 })
 
-
-
 # Test getters ----------------------------------------
 test_that("getter functions return objects of the expected class", {
   phip_obj <- PhIPData(counts = counts, logfc = logfc, prob = prob,
@@ -198,9 +196,28 @@ test_that("setter functions change the object as desired", {
 
   # Check assay replacement; newinfo has different names
   replacement_matrix <- matrix(runif(n_samples*n_peptides, min = 1, max = 1e6),
-                               nrow = n_peptides)
-  counts(phip_obj) <- logfc(phip_obj) <- prob(phip_obj) <- replacement_matrix
+                             nrow = n_peptides)
 
+  expect_error(assays(phip_obj) <- list(assay_1 = replacement_matrix,
+                                        assay_2 = replacement_matrix),
+               paste0("`counts`, `logfc`, and `prob` assays must be included ",
+                      "in a PhIPData object. The following assays are ",
+                      "missing: counts, logfc, prob."))
+  assays(phip_obj) <- list(counts = replacement_matrix,
+                           logfc = replacement_matrix,
+                           prob = replacement_matrix)
+  expect_equal(unname(as.matrix(counts(phip_obj))), replacement_matrix)
+  expect_equal(unname(as.matrix(logfc(phip_obj))), replacement_matrix)
+  expect_equal(unname(as.matrix(prob(phip_obj))), replacement_matrix)
+
+  assay(phip_obj) <- counts
+  expect_equal(counts(phip_obj), counts)
+  assay(phip_obj, 2) <- logfc
+  expect_equal(logfc(phip_obj), logfc)
+  assay(phip_obj, "prob") <- prob
+  expect_equal(prob(phip_obj), prob)
+
+  counts(phip_obj) <- logfc(phip_obj) <- prob(phip_obj) <- replacement_matrix
   expect_equal(unname(as.matrix(counts(phip_obj))), replacement_matrix)
   expect_equal(unname(as.matrix(logfc(phip_obj))), replacement_matrix)
   expect_equal(unname(as.matrix(prob(phip_obj))), replacement_matrix)
@@ -208,10 +225,10 @@ test_that("setter functions change the object as desired", {
   # Check peptideInfo replacement; new info has different rownames
   peptideInfo(phip_obj) <- virscan_info[, 1:10]
   pep_tidied <- .tidyPeptideInfo(virscan_info[, 1:10],
-                                 dimnames(phip_obj)[[1]])
+                                  dimnames(phip_obj)[[1]])
   pep_expect <- GenomicRanges::GRanges(seqnames = dimnames(phip_obj)[[1]],
-      ranges = IRanges::IRanges(start = pep_tidied[["pep_start"]],
-                                end = pep_tidied[["pep_end"]]))
+     ranges = IRanges::IRanges(start = pep_tidied[["pep_start"]],
+                               end = pep_tidied[["pep_end"]]))
 
   mcols(pep_expect) <- pep_tidied[["pep_meta"]]
 
@@ -222,6 +239,26 @@ test_that("setter functions change the object as desired", {
   sampleInfo(phip_obj) <- sampleInfo
 
   expect_equal(sampleInfo(phip_obj), sampleInfo)
+
+})
+
+test_that("assays can be added and removed", {
+
+  phip_obj <- PhIPData(counts = counts, logfc = logfc, prob = prob,
+                       sampleInfo = sampleInfo, peptideInfo = virscan_info)
+
+  replacement_matrix <- matrix(runif(n_samples*n_peptides, min = 1, max = 1e6),
+                               nrow = n_peptides)
+
+  expect_error(assay(phip_obj, "counts") <- NULL,
+               paste0("`counts`, `logfc`, and `prob` assays must be included ",
+                      "in a PhIPData object. The following assays are ",
+                      "missing: counts"))
+  assay(phip_obj, "new_assay") <- replacement_matrix
+  expect_equal(unname(as.matrix(assay(phip_obj, "new_assay"))),
+               replacement_matrix)
+  assay(phip_obj, "new_assay") <- NULL
+  expect_true(!"new_assay" %in% assayNames(phip_obj))
 
 })
 
