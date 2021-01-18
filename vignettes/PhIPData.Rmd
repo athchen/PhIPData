@@ -21,7 +21,8 @@ knitr::opts_chunk$set(
 
 # Installation
 
-We recommend installing the stable release version of `PhIPData` in Bioconductor. This can be done using `BiocManager`:
+We recommend installing the stable release version of `PhIPData` in Bioconductor.
+This can be done using `BiocManager`:
 
 ```{r, eval = FALSE}
 if (!require("BiocManager"))
@@ -38,15 +39,15 @@ To load the package:
 
 # Introduction
 
-The `PhIPData` class stores rectangular matrices of experimental results from phage-immunoprecipitation sequencing (PhIP-Seq) experiments. 
+The `PhIPData` class is used to store experimental results from phage-immunoprecipitation sequencing (PhIP-Seq) experiments. 
 
-* Extends RangedSummarizedExperiments
-  + Many of the same useful functions are inherited, like subsetting by metadata, row/column name accessors, etc. 
-  + Conceptually extends the idea of coordinating metadata and data when subsetting (with the subsetPeptides function)
-  + Extends GRanges subsetting
-* Stores metadata for peptides and samples along with the raw reads, log10 fc, and some p-value indicating enrichment
+Since the `PhIPData` class extends the [`RangedSummarizedExperiment`](https://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html) class, functions for `RangedSummarizedExperiment`/`SummarizedExperiment` object can also be used on `PhIPData` objects. Like `SummarizedExperiment` class, `PhIPData` coordinates metadata and experimental data when subsetting, so sample metadata and assay data remain synced throughout analysis. 
+
+Peptide positions are stored using [`GenomicRanges`](http://bioconductor.org/packages/release/bioc/html/GenomicRanges.html), so subsetting using positional information (via `subsetByOverlaps()`) is supported in the `PhIPData` class. The `PhIPData` package provides additional functionality for subsetting by the virus species from which the peptide sequence was derived. 
 
 # Components of a PhIPData Object
+
+Each `PhIPData` object stores the raw read counts, log10 estimated fold-changes, probabilities associated with enrichment, and metadata associated with the peptides, samples, and experiment. 
 
 ```{r, echo = FALSE, fig.cap = "", out.width = "\\maxwidth"}
 knitr::include_graphics("extras/PhIPData.png")
@@ -61,6 +62,8 @@ knitr::include_graphics("extras/PhIPData.png")
 ## Experimental metadata
 
 # Creating a PhIPData object
+
+Here, we show an example 
 
 ## Using template libraries
 

@@ -2,8 +2,6 @@ context("Create, modify, and delete aliases for peptide subsetting")
 
 test_that("the alias database can be accessed and modified", {
 
-  skip("Reworking class")
-
   # Test path functions
   expect_error(setAliasPath("bad_path"), "Invalid alias file location.")
   expect_error(setAliasPath(system.file("extdata/virscan.tsv",

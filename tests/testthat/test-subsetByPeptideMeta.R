@@ -1,4 +1,4 @@
-context("Subsetting by virus")
+context("Subsetting by peptide metadata")
 
 # Set-up ----------------------------------------
 set.seed(20210106)
@@ -49,13 +49,17 @@ num_ebv <- sum(grepl(pattern, virscan_info$species))
 
 test_that("PhIPData objects can be subsetted by virus", {
 
-  skip("Reworking class")
-  expect_is(getPeptides(phip_obj, pattern), "PhIPData")
-  expect_equal(nrow(getPeptides(phip_obj, pattern)), num_ebv)
+  ebv_subset <- subsetByPeptideMeta(phip_obj, grepl(pattern, species))
+  expect_is(ebv_subset, "PhIPData")
+  expect_equal(nrow(ebv_subset), num_ebv)
 
-  peptideInfo(phip_obj) <- virscan_info %>%
-    dplyr::rename(taxonomy_species = species)
+})
 
-  expect_error(getPeptides(phip_obj, pattern),
-               "Peptide metadata does not contain `species` information.")
+test_that("dplyr filtering works for PhIPData objects", {
+
+  phip_sub <- subsetByPeptideMeta(phip_obj, grepl(pattern, species) &
+                                    pro_len >= 1000)
+
+  expect_equal(nrow(phip_sub), sum(grepl(pattern, virscan_info$species) &
+                                     virscan_info$pro_len >= 1000))
 })
