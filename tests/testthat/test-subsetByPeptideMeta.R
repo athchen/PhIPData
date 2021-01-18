@@ -1,4 +1,4 @@
-context("Subsetting by peptide metadata")
+context("PhIPData objects can be flexibly subsetted by peptide metadata.")
 
 # Set-up ----------------------------------------
 set.seed(20210106)

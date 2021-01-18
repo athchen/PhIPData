@@ -1,4 +1,4 @@
-context("Base PhIPData API functions as expected.")
+context("Base PhIPData API functions work as expected.")
 
 # Set-up ----------------------------------------
 set.seed(20210106)
@@ -87,6 +87,12 @@ test_that("valid PhIPData objects are created when there are missing inputs.", {
   expect_is(PhIPData(counts = counts, logfc = logfc, prob = prob,
                      peptideInfo = virscan_info, sampleInfo = sampleInfo),
             "PhIPData")
+
+  # peptide data is missing positional information
+  nopos_pepInfo <- dplyr::select(virscan_info, -contains("pos"))
+  expect_is(PhIPData(counts = counts, logfc = logfc, prob = prob,
+                     peptideInfo = nopos_pepInfo, sampleInfo = sampleInfo),
+            "PhIPData")
 })
 
 # Test name-fixing code ----------------------------------------
@@ -169,6 +175,12 @@ test_that("invalid inputs return proper errors", {
   # invalid default behavior for mismatched names
   # (only a problem names are mismatched)
   rownames(logfc) <- paste0("logfc_", rownames(logfc))
+  expect_error(PhIPData(counts, logfc, prob,
+                        virscan_info, sampleInfo,
+                        .defaultNames = "test"),
+               "Invalid '.defaultNames' supplied.")
+
+  colnames(logfc) <- paste0("logfc_", colnames(logfc))
   expect_error(PhIPData(counts, logfc, prob,
                         virscan_info, sampleInfo,
                         .defaultNames = "test"),

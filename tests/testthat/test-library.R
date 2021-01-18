@@ -1,4 +1,4 @@
-context("Library creators and accessors work as expected.")
+context("Libraries can be stored and loaded for populating peptide information.")
 
 test_that("libraries can be created and used to make valid PhIPData objects.", {
 
