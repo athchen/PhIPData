@@ -286,4 +286,5 @@ test_that("coercion functions work as expected", {
   expect_is(as(as(phip_obj, "list"), "PhIPData"), "PhIPData")
   expect_is(as(as(phip_obj, "List"), "PhIPData"), "PhIPData")
   expect_is(as(as(phip_obj, "DGEList"), "PhIPData"), "PhIPData")
+
 })
