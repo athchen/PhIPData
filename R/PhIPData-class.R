@@ -321,22 +321,27 @@ S4Vectors::setValidity2("PhIPData", .validPhIPData)
 ### Getters
 ### ==============================================
 
+#' @export
 setGeneric("counts", function(x, ...) standardGeneric("counts"))
 setMethod("counts", "PhIPData", function(x)
   SummarizedExperiment::assays(x)[["counts"]])
 
+#' @export
 setGeneric("logfc", function(x, ...) standardGeneric("logfc"))
 setMethod("logfc", "PhIPData", function(x)
   SummarizedExperiment::assays(x)[["logfc"]])
 
+#' @export
 setGeneric("prob", function(x, ...) standardGeneric("prob"))
 setMethod("prob", "PhIPData", function(x)
   SummarizedExperiment::assays(x)[["prob"]])
 
+#' @export
 setGeneric("peptideInfo", function(x, ...) standardGeneric("peptideInfo"))
 setMethod("peptideInfo", "PhIPData", function(x)
   SummarizedExperiment::rowRanges(x))
 
+#' @export
 setGeneric("sampleInfo", function(x, ...) standardGeneric("sampleInfo"))
 setMethod("sampleInfo", "PhIPData", function(x)
   SummarizedExperiment::colData(x))
@@ -482,24 +487,28 @@ setReplaceMethod("assay", c("PhIPData", "character"), function(x, i, ..., value)
 })
 
 # Convenience functions for standard Assays
+#' @export
 setGeneric("counts<-", function(x, value) standardGeneric("counts<-"))
 setReplaceMethod("counts", "PhIPData", function(x, value) {
   assay(x, "counts") <- value
   x
 })
 
+#' @export
 setGeneric("logfc<-", function(x, value) standardGeneric("logfc<-"))
 setReplaceMethod("logfc", "PhIPData", function(x, value) {
   assay(x, "logfc") <- value
   x
 })
 
+#' @export
 setGeneric("prob<-", function(x, value) standardGeneric("prob<-"))
 setReplaceMethod("prob", "PhIPData", function(x, value) {
   assay(x, "prob") <- value
   x
 })
 
+#' @export
 setGeneric("peptideInfo<-", function(x, value) standardGeneric("peptideInfo<-"))
 setReplaceMethod("peptideInfo", "PhIPData", function(x, value){
   # check # of peptides match with assays
@@ -529,6 +538,7 @@ setReplaceMethod("peptideInfo", "PhIPData", function(x, value){
   x
 })
 
+#' @export
 setGeneric("sampleInfo<-", function(x, value) standardGeneric("sampleInfo<-"))
 setReplaceMethod("sampleInfo", "PhIPData", function(x, value){
   # check # of samples match with assays
@@ -579,11 +589,11 @@ setAs("DGEList", "PhIPData", function(from){
 setAs("PhIPData", "DGEList", function(from){
   count_mat <- counts(from)
   sample_info <- sampleInfo(from)
-  peptide_info <- as(peptideInfo(from), "DataFrame")
+  peptide_info <- peptideInfo(from)
   group_labs <- if("group" %in% colnames(sample_info)){ sample_info$group } else NULL
 
   edgeR::DGEList(counts = count_mat,
-          samples = sample_info,
+          samples = sample_info[colnames(sample_info) != "group"],
           group = group_labs,
           genes = peptide_info)
 })
