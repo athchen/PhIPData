@@ -21,14 +21,14 @@ Imports:
     IRanges,
     S4Vectors, 
     edgeR,
-    cli, 
-    dplyr
+    cli
 Suggests:
     BiocStyle, 
     testthat,
     knitr,
     rmarkdown,
     covr, 
+    dplyr,
     readr
 biocViews: Infrastructure, DataRepresentation
 BugReports: https://github.com/athchen/PhIPData/issues
@@ -36,6 +36,5 @@ Collate:
     'PhIPData-class.R'
     'alias.R'
     'library.R'
-    'subsetByPeptideMeta.R'
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr

@@ -229,11 +229,10 @@ As described in the [Sample metadata](#sample-metadata) section, `$` operates on
 phip_obj[, phip_obj$group == "trt"]
 ```
 
-In addition to subsetting by row indices, `PhIPData` supports subsetting rows using peptide metadata information. Using syntax similar to `dplyr::filter()`, `subsetByPeptideMeta(phip_obj, condition)` returns a `PhIPData` object with rows where the specified condition holds. 
+In addition to subsetting by row indices, `PhIPData` supports subsetting rows using peptide metadata information. `subset(phip_obj, row_condition, column_condition)` returns a `PhIPData` object with rows where the specified condition holds. 
 
 ```{r}
-ebv_sub <- subsetByPeptideMeta(phip_obj, 
-                               grepl("Epstein-Barr virus", species))
+ebv_sub <- subset(phip_obj, grepl("Epstein-Barr virus", species))
 
 peptideInfo(ebv_sub)[, "species"]
 ```
@@ -280,7 +279,7 @@ Peptides are often derived from species with long virus names. To quickly search
 setAlias("hiv", "[Hh]uman immunodeficiency virus")
 
 # Use alias ----------
-hiv_sub <- subsetByPeptideMeta(phip_obj, grepl(getAlias("hiv"), species))
+hiv_sub <- subset(phip_obj, grepl(getAlias("hiv"), species))
 peptideInfo(hiv_sub)[, "species"]
 
 # Remove alias from database -----------
@@ -288,7 +287,7 @@ deleteAlias("hiv")
 
 # The following command returns an error that the virus does
 # not exist in the alias database. 
-subsetByPeptideMeta(phip_obj, grepl(getAlias("hiv"), species))
+subset(phip_obj, grepl(getAlias("hiv"), species))
 ```
 
 Alias-pattern combinations are case senstive, so an entry with key "hiv" would differ from an entry with key "HIV." Like libraries, by default the location of the alias database is in the `extdata` folder of the `PhIPData` package. The location to an .rda file with the key-pattern values in a dataframe called alias can be retreived and specified using the `getAliasPath()` and `setAliasPath()` functions, respectively. 
@@ -303,7 +302,6 @@ For `DGELists`, the `group` slot is automatically populated with the `group` col
 # PhIPData to DGEList
 as(phip_obj, "DGEList")
 ```
-
 
 # `sessionInfo()`
 

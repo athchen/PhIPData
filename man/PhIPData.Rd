@@ -2,7 +2,7 @@
 % Please edit documentation in R/PhIPData-class.R
 \name{PhIPData}
 \alias{PhIPData}
-\title{Construct a \code{PhIPData} object.}
+\title{PhIPData objects}
 \usage{
 PhIPData(
   counts = S4Vectors::DataFrame(),
@@ -11,8 +11,7 @@ PhIPData(
   peptideInfo = S4Vectors::DataFrame(),
   sampleInfo = S4Vectors::DataFrame(),
   metadata = list(),
-  .defaultNames = "info",
-  ...
+  .defaultNames = "info"
 )
 }
 \arguments{
@@ -52,6 +51,38 @@ Valid options are:
 }}
 }
 \description{
+The \code{PhIPData} class is a matrix-like container designed to organize
+results from phage-immunoprecipitation (PhIP-Seq) experiments. Rows in
+PhIPData objects represent peptides and columns represent samples. Each
+object contains at least three assays:
+
+\itemize{
+    \item{\code{counts}:} a matrix of raw read counts,
+    \item{\code{logfc}:} a matrix of log10 estimated fold-change in
+         comparison to beads-only samples,
+    \item{\code{prob}:} a matrix of probabilities associated with whether
+         a sample has an enriched antibody response for a peptide.
+}
+
+The \code{PhIPData} class extends the \link{RangedSummarizedExperiment} class, so
+methods documented in \code{?RangedsummarizedExperiment} and
+\code{?SummarizedExperiment} also work on \code{PhIPData} objects.
+}
+\details{
+New \code{PhIPData} objects
+can be created using the homonymous constructor.
 TODO Edit description. Empty objects are valid objects.
 Missing peptideInfo and sampleInfo are also valid objects, empty assays can also be initialized
 }
+\section{Contructor}{
+NA
+}
+
+\section{Accessors}{
+NA
+}
+
+\section{Sy}{
+NA
+}
+
