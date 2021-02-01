@@ -23,15 +23,16 @@ virscan_info <- readr::read_tsv(virscan_file,
 n_samples <- 96L
 n_peptides <- nrow(virscan_info)
 
-counts <- matrix(runif(n_samples*n_peptides, min = 1, max = 1e6),
+counts <- matrix(sample(1:1e6, n_samples*n_peptides, replace = TRUE),
                  nrow = n_peptides)
 logfc <- matrix(rnorm(n_samples*n_peptides, mean = 0, sd = 10),
                 nrow = n_peptides)
 prob <- matrix(rbeta(n_samples*n_peptides, shape1 = 1, shape2 = 1),
                nrow = n_peptides)
 
-sampleInfo <- DataFrame(sample_name = paste0("sample", 1:n_samples),
-                        gender = sample(c("M", "F"), n_samples, replace = TRUE))
+sampleInfo <- S4Vectors::DataFrame(sample_name = paste0("sample", 1:n_samples),
+                                   gender = sample(c("M", "F"), n_samples,
+                                                   replace = TRUE))
 
 rownames(counts) <- rownames(logfc) <-
   rownames(prob) <- rownames(virscan_info) <-
@@ -164,8 +165,11 @@ test_that("dimension names are set correctly when inputs are mismatched", {
 test_that("invalid inputs return proper errors", {
 
   # negative counts
-  expect_error(PhIPData(counts = matrix(runif(25, -10, 10), nrow = 5)),
+  expect_error(PhIPData(counts = matrix(-15:14, nrow = 5)),
                "'counts' cannot have negative entries.")
+  # non-integer
+  expect_error(PhIPData(counts = matrix(seq(0, 10, length = 20), nrow = 5)),
+               "'counts' must be integers.")
 
   # incompatible dimensions
   expect_error(PhIPData(counts = counts,
@@ -207,8 +211,8 @@ test_that("setter functions change the object as desired", {
                        sampleInfo = sampleInfo, peptideInfo = virscan_info)
 
   # Check assay replacement; newinfo has different names
-  replacement_matrix <- matrix(runif(n_samples*n_peptides, min = 1, max = 1e6),
-                             nrow = n_peptides)
+  replacement_matrix <- matrix(sample(1:1e6, n_samples*n_peptides, replace = T),
+                               nrow = n_peptides)
 
   expect_error(assays(phip_obj) <- list(assay_1 = replacement_matrix,
                                         assay_2 = replacement_matrix),
@@ -234,6 +238,14 @@ test_that("setter functions change the object as desired", {
   expect_equal(unname(as.matrix(logfc(phip_obj))), replacement_matrix)
   expect_equal(unname(as.matrix(prob(phip_obj))), replacement_matrix)
 
+  # Check that invalid replacement generates warning
+  expect_error(counts(phip_obj) <- matrix(-1L, nrow = n_peptides, ncol = n_samples),
+               "'counts' cannot have negative entries.")
+  expect_error(counts(phip_obj) <- matrix(0.5, nrow = n_peptides, ncol = n_samples),
+               "'counts' must be integers.")
+  expect_error(counts(phip_obj) <- matrix(-1.5, nrow = n_peptides, ncol = n_samples),
+               "'counts' cannot have negative entries and must be integers.")
+
   # Check peptideInfo replacement; new info has different rownames
   peptideInfo(phip_obj) <- virscan_info[, 1:10]
   pep_tidied <- .tidyPeptideInfo(virscan_info[, 1:10],
@@ -249,6 +261,9 @@ test_that("setter functions change the object as desired", {
   # Check sampleInfo replacement, new info has different rownames
   sampleInfo$ART <- sample(c("yes", "no"), n_samples, replace = TRUE)
   sampleInfo(phip_obj) <- sampleInfo
+
+  ## add missing group column
+  sampleInfo$group <- NA
 
   expect_equal(sampleInfo(phip_obj), sampleInfo)
 

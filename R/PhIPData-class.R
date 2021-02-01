@@ -1,3 +1,4 @@
+#' @include defineBeads.R
 #' @import methods SummarizedExperiment GenomicRanges IRanges edgeR cli
 NULL
 
@@ -21,50 +22,78 @@ NULL
 #'          a sample has an enriched antibody response for a peptide.
 #' }
 #'
-#' The \code{PhIPData} class extends the \link{RangedSummarizedExperiment} class, so
-#' methods documented in \code{?RangedsummarizedExperiment} and
+#' The \code{PhIPData} class extends the \link{RangedSummarizedExperiment}
+#' class, so methods documented in \code{?RangedsummarizedExperiment} and
 #' \code{?SummarizedExperiment} also work on \code{PhIPData} objects.
 #'
 #' @details
-#' New \code{PhIPData} objects
-#' can be created using the homonymous constructor.
-#' TODO Edit description. Empty objects are valid objects.
-#' Missing peptideInfo and sampleInfo are also valid objects, empty assays can also be initialized
+#' Rows of \code{PhIPData} objects correspond to peptides of interest and are
+#' organized in \link{GRanges} or \link{GRangesList} objects. Though originally
+#' designed for genomic ranges, the sequence name and genomic range information
+#' in \link{GRanges} objects can be replaced with peptide names and amino acid
+#' positions, respectively. If no peptide names are given, peptides are given
+#' the names of \code{pep_rownum}. Peptide positions are specified by columns
+#' \code{pos_start} and \code{pos_end} in the \code{peptideInfo} argument of the
+#' constuctor. Missing position information is set to 0. Additional peptide
+#' annotation can also be stored in \link{GRanges} objects and can be used
+#' to subset \code{PhIPData} objects as shown below.
 #'
-#' @section Contructor
+#' Columns of \code{PhIPData} objects represent samples. Sample metadata
+#' are stored in a \link{DataFrame} and can be accessed as shown below. If no
+#' sample names are specified, samples are given default names of
+#' \code{sample_colnum}.
+#'
+#' Unlike \link{RangedSummarizedExperiment}/\link{SummarizedExperiment} objects,
+#' \code{PhIPData} objects must contain \code{counts}, \code{logfc}, \code{prob}.
+#' If any of the three assays are missing when the constructor is called, an
+#' empty matrix of the same names and dimensions is initialized for that assay.
+#' Sample and peptide names are harmonized across assays and annotation during
+#' construction and replacement.
+#'
+#' @section Constructor
+#' \code{PhIPData} objects are constructed using the homonymous function and
+#' arguments as described above. Any \code{PhIPData} object can be created
+#' so long as peptide and sample identifiers (or lack thereof) are specified
+#' via any of the paramters.
 #'
 #' @section Accessors
 #'
-#' @section Sy
 #'
-#' @param counts a \code{matrix}, \code{data.frame}, or \code{\linkS4class{DataFrame}}
-#' of integer read counts.
-#' @param logfc a \code{matrix}, \code{data.frame}, or \code{\linkS4class{DataFrame}}
-#' of log10 estimated fold changes.
-#' @param prob a \code{matrix}, \code{data.frame}, or \code{\linkS4class{DataFrame}} of
-#' probability values (p-values or posterior probabilities) for enrichment estimates.
-#' @param peptideInfo a \code{data.frame} or \code{\linkS4class{DataFrame}} of peptide
-#' information. Peptide identifiers (\code{pep_id}) can be specified via row names
-#' of the \code{counts}, \code{logfc}, \code{prob}, or \code{peptideInfo} objects.
-#' Valid construction of a \code{PhIPData} object only requires a \code{pep_id}, but
-#' inclusion of other parameters, such as peptide positions or species, enables use
-#' of other convenient functions for filtering peptides.
-#' @param sampleInfo a \code{data.frame} or \code{\linkS4class{DataFrame}} of additional sample
-#' information. Unique sample identifiers can be specific via column names of the
-#' \code{counts}, \code{logfc}, \code{prob}, or \code{sampleInfo} objects.
-#' @param metadata a \code{list} object containing experiment-specific metadata
-#' @param .defaultNames vector of default names to use when the sample and peptide ID
-#' disagree across the metadata and the \code{counts}, \code{logfc}, and \code{prob} matrices.
-#' If \code{.defaultNames} is of length 1, the same source is used for both peptide and
-#' sample identifiers. If \code{.defaultNames} is longer than 2, the first and second
-#' elements correspond to the default names to use for peptides and samples, respectively.
-#' Valid options are:
-#' \itemize{
-#'     \item{"info": }{names should be taken from the \code{SampleInfo} or \code{peptideInfo} objects.}
-#'     \item{"counts": }{names should be taken from the row/column names of the \code{counts} object.}
-#'     \item{"logfc": }{names should be taken from the row/column names of the \code{logfc} object.}
-#'     \item{"prob": }{names should be taken from the row/column names of the \code{prob} object.}
-#' }
+#' @section
+#'
+#' @param counts a \code{matrix}, \code{data.frame}, or
+#'     \code{\linkS4class{DataFrame}}of integer read counts.
+#' @param logfc a \code{matrix}, \code{data.frame}, or
+#'     \code{\linkS4class{DataFrame}} of log10 estimated fold changes.
+#' @param prob a \code{matrix}, \code{data.frame}, or
+#'     \code{\linkS4class{DataFrame}} of probability values (p-values or
+#'     posterior probabilities) for enrichment estimates.
+#' @param peptideInfo a \code{data.frame} or \code{\linkS4class{DataFrame}} of
+#'    peptide information. Peptide identifiers (\code{pep_id}) can be specified
+#'    via row names of the \code{counts}, \code{logfc}, \code{prob},
+#'    or \code{peptideInfo} objects.
+#' @param sampleInfo a \code{data.frame} or \code{\linkS4class{DataFrame}} of
+#'     additional sample information.
+#' @param metadata a \code{list} object containing experiment-specific metadata.
+#' @param .defaultNames vector of names to use when sample and peptide
+#'     identifiers disagree across the metadata and the \code{counts},
+#'     \code{logfc}, and \code{prob} matrices. If \code{.defaultNames} is of
+#'     length 1, the same source is used for both peptide and sample
+#'     identifiers. If \code{.defaultNames} is longer than 2, the first and
+#'     second elements correspond to the names for peptides and samples,
+#'     respectively.
+#'
+#'     Valid options are:
+#'     \itemize{
+#'         \item{"info": }{names should be taken from the \code{SampleInfo} or
+#'             \code{peptideInfo} objects.}
+#'         \item{"counts": }{names should be taken from the row/column names
+#'             of the \code{counts} object.}
+#'         \item{"logfc": }{names should be taken from the row/column names of
+#'             the \code{logfc} object.}
+#'         \item{"prob": }{names should be taken from the row/column names of
+#'             the \code{prob} object.}
+#'     }
 #'
 #' @export PhIPData
 PhIPData <- function(counts = S4Vectors::DataFrame(),
@@ -80,23 +109,29 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
   assays_missing <- assays[c(missing(counts), missing(logfc), missing(prob))]
 
   assay_list <- list(counts = counts, logfc = logfc, prob = prob)
-  .defaultNames <- if(length(.defaultNames) == 1) { rep(.defaultNames, 2) } else { .defaultNames }
+  .defaultNames <- if(length(.defaultNames) == 1) {
+    rep(.defaultNames, 2)
+  } else {
+    .defaultNames
+  }
 
   ## Check that input dimensions are matched.
   dims <- .checkDims(counts, logfc, prob, peptideInfo, sampleInfo)
   if(is.character(dims)) { stop(dims) }
 
-  ## Get peptide names
-  ## if no peptide names are given but there are peptides, assign names of "pep_rownumber"
+  ## Get peptide names. If no peptide names are given but there are peptides,
+  ## assign names of "pep_rownumber"
   peptide_names <- .getPeptideNames(counts, logfc, prob, peptideInfo, .defaultNames[1])
-  peptide_names <- if (is.null(peptide_names) & dims[1] != 0) {
+  peptide_names <- if(is.null(peptide_names) & dims[1] != 0) {
     paste0("pep_", 1:dims[1])
     } else { peptide_names }
 
-  ## Get sample names
-  ## if no sample names are given but there are samples, assign names of "sample_colnumber"
+  ## Get sample names. If no sample names are given but there are samples,
+  ## assign names of "sample_colnumber"
   sample_names <- .getSampleNames(counts, logfc, prob, sampleInfo, .defaultNames[2])
-  sample_names <- if(is.null(sample_names) & dims[2] != 0) { paste0("sample_", 1:dims[2])} else {sample_names}
+  sample_names <- if(is.null(sample_names) & dims[2] != 0) {
+    paste0("sample_", 1:dims[2])
+  } else { sample_names }
 
   ## Set missing assays to DataFrames with dimensions and names corresponding to
   ## given matrices. All sample and peptide names are set to be identical
@@ -114,10 +149,23 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
   if(!S4Vectors::isEmpty(pep_meta)){ mcols(row_info) <- pep_meta }
 
   ## Define sample information
-  if(missing(sampleInfo)){
-    sample_meta <- S4Vectors::DataFrame(row.names = sample_names)
+  sample_meta <- if(missing(sampleInfo)){
+    S4Vectors::DataFrame(group = rep(NA, length = length(sample_names)),
+                         row.names = sample_names)
   } else {
-    sample_meta <- S4Vectors::DataFrame(sampleInfo, row.names = sample_names)
+
+    ## Add 'group' column if it is not present
+    if(!"group" %in% colnames(sampleInfo)){
+      cli_alert_warning("No 'group' column in sampleInfo. Adding empty column.")
+      sampleInfo$group <- NA
+    }
+
+    ## Warn if there are no beads-only samples
+    if(!getBeadsName() %in% sampleInfo$group){
+      cli_alert_info("No beads-only samples present in the PhIPData object.")
+    }
+
+    S4Vectors::DataFrame(sampleInfo, row.names = sample_names)
   }
 
   ## Make RangedSummarizedExperiment
@@ -137,11 +185,14 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
   row_dims <- c(nrow(counts), nrow(logfc), nrow(prob), nrow(peptideInfo))
   col_dims <- c(ncol(counts), ncol(logfc), ncol(prob), nrow(sampleInfo))
 
-  fixed_row <- if(length(unique(row_dims)) == 1) { unique(row_dims) } else { unique(row_dims[row_dims != 0]) }
-  fixed_col <- if(length(unique(col_dims)) == 1) { unique(col_dims) } else { unique(col_dims[col_dims != 0]) }
+  fixed_row <- if(length(unique(row_dims)) == 1) {
+    unique(row_dims)
+  } else { unique(row_dims[row_dims != 0]) }
+  fixed_col <- if(length(unique(col_dims)) == 1) {
+    unique(col_dims)
+  } else { unique(col_dims[col_dims != 0]) }
 
   match <- c(length(fixed_row) == 1, length(fixed_col) == 1)
-
   error <- paste0("The number of ",
                   paste0(c("samples", "peptides")[! match], collapse = " and "),
                   " differs across inputs.")
@@ -151,11 +202,15 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
 
 .getPeptideNames <- function(counts, logfc, prob, peptideInfo, default){
 
-  peptide_names <- list(rownames(counts), rownames(logfc), rownames(prob), rownames(peptideInfo))
+  peptide_names <- list(rownames(counts), rownames(logfc),
+                        rownames(prob), rownames(peptideInfo))
   peptide_names <- unique(peptide_names[sapply(peptide_names, length) != 0])
 
-  peptide_warning <- "Peptide names are not identical across inputs. Using peptide names from "
-  default_error <- "Invalid '.defaultNames' supplied. Valid '.defaultNames' options are 'info', 'counts', 'logfc', or 'prob'."
+  peptide_warning <- paste0("Peptide names are not identical across inputs. ",
+                            "Using peptide names from ")
+  default_error <- paste0("Invalid '.defaultNames' supplied. Valid ",
+                          "'.defaultNames' options are 'info', 'counts', ",
+                          "'logfc', or 'prob'.")
 
   if (length(peptide_names) == 0) {
     peptide_names <- NULL
@@ -180,11 +235,15 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
 
 .getSampleNames <- function(counts, logfc, prob, sampleInfo, default){
 
-  sample_names <- list(colnames(counts), colnames(logfc), colnames(prob), rownames(sampleInfo))
+  sample_names <- list(colnames(counts), colnames(logfc),
+                       colnames(prob), rownames(sampleInfo))
   sample_names <- unique(sample_names[sapply(sample_names, length) != 0])
 
-  sample_warning <- "Sample names are not identical across inputs. Using sample names from "
-  default_error <- "Invalid '.defaultNames' supplied. Valid '.defaultNames' options are: 'info', 'counts', 'logfc', or 'prob'."
+  sample_warning <- paste0("Sample names are not identical across inputs. ",
+                           "Using sample names from ")
+  default_error <- paste0("Invalid '.defaultNames' supplied. Valid ",
+                          "'.defaultNames' options are: 'info', 'counts', ",
+                          "'logfc', or 'prob'.")
 
   if (length(sample_names) == 0) {
     sample_names <- NULL
@@ -213,17 +272,34 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
   assays_present <- assays[!assays %in% assays_missing]
   num_missing <- length(assays_missing)
 
+  ## Create empty matrix missing assays
   empty_mat <- matrix(nrow = length(peptide_names),
                       ncol = length(sample_names))
   rownames(empty_mat) <- peptide_names
   colnames(empty_mat) <- sample_names
-
   for(assay in assays_missing){
     assay_list[[assay]] <- S4Vectors::DataFrame(empty_mat)
   }
 
-  for(assay in assays_present){
-    assay_list[[assay]] <- S4Vectors::DataFrame(assay_list[[assay]])
+  ## Coerce all assays into DataFrames
+  assay_list <- lapply(assay_list, S4Vectors::DataFrame)
+
+  ## Coerce counts assay to integers
+  ## Need to deal with special case when there are no samples since as.integer
+  ## reduces to a matrix of 0 rows (rather than # of peptides)
+  count_int <- if(ncol(assay_list[["counts"]]) == 0){
+    assay_list[["counts"]]
+  } else {
+    endoapply(assay_list[["counts"]], as.integer)
+  }
+  ## Return error if integer coercion changed data
+  if(any(count_int != assay_list[["counts"]])){
+    stop("'counts' must be integers.")
+  }
+  assay_list[["counts"]] <- count_int
+
+  ## Correct names
+  for(assay in assays){
     if(!is.null(peptide_names)) { rownames(assay_list[[assay]]) <- peptide_names }
     if(!is.null(sample_names)) { colnames(assay_list[[assay]]) <- sample_names }
   }
@@ -239,7 +315,8 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
     pep_start <- rep(0, length(peptide_names))
     pep_end <- rep(0, length(peptide_names))
   } else {
-    pep_meta <- S4Vectors::DataFrame(peptideInfo[, !colnames(peptideInfo) %in% c("pos_start", "pos_end")])
+    pep_meta <- S4Vectors::DataFrame(peptideInfo[, !colnames(peptideInfo) %in%
+                                                   c("pos_start", "pos_end")])
 
     warnings <- c(no_start = (!"pos_start" %in% colnames(peptideInfo)),
                   no_end = (!"pos_end" %in% colnames(peptideInfo)))
@@ -250,13 +327,18 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
     } else { TRUE }
 
     msg <- if (sum(warnings[c("no_start", "no_end")]) > 0) {
-      paste0("Missing peptide ", paste(c("start", "end")[warnings[c("no_start", "no_end")]], collapse = " and "),
+      paste0("Missing peptide ",
+             paste(c("start", "end")[warnings[c("no_start", "no_end")]],
+                   collapse = " and "),
              " position information.")
     } else NULL
 
-    msg <- if(any(warnings)) { paste0(msg, " Replacing missing values with 0.")} else { msg }
+    msg <- if(any(warnings)) {
+      paste0(msg, " Replacing missing values with 0.")
+    } else { msg }
     if(length(msg) > 0){ cli::cli_alert_warning(msg) }
 
+    ## Add pos_start and pos_end columns if not present, set to 0 if missing
     if(!all(c("pos_start", "pos_end") %in% colnames(peptideInfo))){
       pep_start <- rep(0, length(peptide_names))
       pep_end <- rep(0, length(peptide_names))
@@ -296,14 +378,32 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
   } else NULL
 }
 
-## 2. counts cannot have negative entries
+## 2a. counts cannot have negative entries
+## 2b. counts must be integer
 .checkCounts <- function(x){
-  counts_df <- as.data.frame(counts(x))
-  if(!all(counts_df >= 0 | is.na(counts_df))) {
-    "'counts' cannot have negative entries."
-  } else NULL
+  error <- character()
 
+  if(all(dim(x) != 0)) {
+    counts_pos <- sapply(counts(x), function(x) x>= 0 | is.na(x))
+    if(!all(counts_pos)) {
+      msg <- "cannot have negative entries"
+      error <- c(error, msg)
+    }
+
+    counts_int <- sapply(counts(x), function(x) is.integer(x) | is.na(x))
+    if(!all(counts_int)) {
+      msg <- "must be integers"
+      error <- c(error, msg)
+    }
+
+    error <- paste0(error, collapse = " and ")
+
+    if(error != ""){
+      paste0("'counts' ", error, ".")
+    } else NULL
+  } else NULL
 }
+
 ## 3. Sample and peptide dimensions must be the same within the object.
 .checkObjectDim <- function(x){
   dim_check <- .checkDims(counts(x), logfc(x), prob(x), peptideInfo(x), sampleInfo(x))
@@ -327,17 +427,22 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
 
 }
 
+.checkSampleInfo <- function(x){
+  if(!"group" %in% colnames(sampleInfo(x))){
+    "'group' column must be present in sample information."
+  } else NULL
+}
+
 .validPhIPData <- function(x){
   if(!isEmpty(x)){
-    c(.checkAssays(x), .checkCounts(x), .checkObjectDim(x), .checkNames(x))
+    c(.checkAssays(x), .checkCounts(x), .checkObjectDim(x), .checkNames(x),
+      .checkSampleInfo(x))
   }
 }
 
 S4Vectors::setValidity2("PhIPData", .validPhIPData)
 
-### ==============================================
-### Getters
-### ==============================================
+### Getters ==============================================
 
 #' @export
 setGeneric("counts", function(x, ...) standardGeneric("counts"))
@@ -364,10 +469,7 @@ setGeneric("sampleInfo", function(x, ...) standardGeneric("sampleInfo"))
 setMethod("sampleInfo", "PhIPData", function(x)
   SummarizedExperiment::colData(x))
 
-### ==============================================
-### Setters
-### ==============================================
-
+### Setters ==============================================
 # This `assays` and `assay` replacement functions differs from the
 # SummarizedExperiment assays functions in that mismatched names returns
 # a valid object rather than an error.
@@ -398,6 +500,7 @@ setReplaceMethod("assays", c("PhIPData", "list"), function(x, ..., value) {
     stop(error)
   }
 
+  validObject(new_object)
   new_object
 })
 
@@ -429,6 +532,7 @@ setReplaceMethod("assays", c("PhIPData", "SimpleList"), function(x, ..., value) 
     stop(error)
   }
 
+  validObject(new_object)
   new_object
 })
 
@@ -453,6 +557,7 @@ setReplaceMethod("assay", c("PhIPData", "missing"), function(x, i, ..., value) {
     stop(error)
   }
 
+  validObject(new_object)
   new_object
 })
 
@@ -477,6 +582,7 @@ setReplaceMethod("assay", c("PhIPData", "numeric"), function(x, i, ..., value) {
     stop(error)
   }
 
+  validObject(new_object)
   new_object
 })
 
@@ -501,6 +607,7 @@ setReplaceMethod("assay", c("PhIPData", "character"), function(x, i, ..., value)
     stop(error)
   }
 
+  validObject(new_object)
   new_object
 })
 
@@ -568,6 +675,18 @@ setReplaceMethod("sampleInfo", "PhIPData", function(x, value){
   rownames(value) <- sample_names <- dimnames(x)[[2]]
 
   sample_meta <- S4Vectors::DataFrame(value, row.names = sample_names)
+
+  ## Add 'group' column if it is not present
+  if(!"group" %in% colnames(sample_meta)){
+    cli_alert_warning("No 'group' column in sampleInfo. Adding empty column.")
+    sample_meta$group <- NA
+  }
+
+  ## Warn if there are no beads-only samples
+  if(!getBeadsName() %in% sample_meta$group){
+    cli_alert_info("No beads-only samples present in the PhIPData object.")
+  }
+
   colData(x) <- sample_meta
 
   validObject(x)
@@ -575,13 +694,16 @@ setReplaceMethod("sampleInfo", "PhIPData", function(x, value){
   x
 })
 
-### ==============================================
-### Generics
-### ==============================================
+### Subsetters ==============================================
 
-# setMethod("show", "PhIPData", function(object) {
-#
-# })
+### Generics ==============================================
+setMethod("show", "PhIPData", function(object) {
+  callNextMethod()
+  beads_name <- getBeadsName()
+  num_beads <- sum(sampleInfo(object)$group == beads_name, na.rm = TRUE)
+  cat("beads-only name(", num_beads, "): ", beads_name,
+      sep = "")
+})
 
 setMethod("isEmpty", "PhIPData", function(x) {
   isEmpty(counts(x)) & isEmpty(logfc(x)) &
@@ -589,10 +711,7 @@ setMethod("isEmpty", "PhIPData", function(x) {
     isEmpty(sampleInfo(x))
 })
 
-### ==============================================
-### Coercion methods
-### ==============================================
-
+### Coercion methods ==============================================
 # DGEList to PhIPData
 setAs("DGEList", "PhIPData", function(from){
 

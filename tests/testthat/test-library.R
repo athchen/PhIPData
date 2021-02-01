@@ -36,7 +36,7 @@ test_that("libraries can be created and used to make valid PhIPData objects.", {
   # test use function
   n_samples <- 96L
   n_peptides <- nrow(virscan_info)
-  counts <- matrix(runif(n_samples*n_peptides, min = 1, max = 1e6),
+  counts <- matrix(sample(1:1e6, n_samples*n_peptides, replace = TRUE),
                    nrow = n_peptides)
   logfc <- matrix(rnorm(n_samples*n_peptides, mean = 0, sd = 10),
                   nrow = n_peptides)
@@ -60,6 +60,6 @@ test_that("libraries can be created and used to make valid PhIPData objects.", {
                        peptideInfo = getLibrary("virscan"))
 
   # clean-up test space
-  Sys.setenv(PHIP_LIBRARY_PATH = "")
+  Sys.unsetenv("PHIP_LIBRARY_PATH")
   file.remove(paste0(extdata_loc, "/virscan.rds"))
 })

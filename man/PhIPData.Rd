@@ -15,40 +15,45 @@ PhIPData(
 )
 }
 \arguments{
-\item{counts}{a \code{matrix}, \code{data.frame}, or \code{\linkS4class{DataFrame}}
-of integer read counts.}
+\item{counts}{a \code{matrix}, \code{data.frame}, or
+\code{\linkS4class{DataFrame}}of integer read counts.}
 
-\item{logfc}{a \code{matrix}, \code{data.frame}, or \code{\linkS4class{DataFrame}}
-of log10 estimated fold changes.}
+\item{logfc}{a \code{matrix}, \code{data.frame}, or
+\code{\linkS4class{DataFrame}} of log10 estimated fold changes.}
 
-\item{prob}{a \code{matrix}, \code{data.frame}, or \code{\linkS4class{DataFrame}} of
-probability values (p-values or posterior probabilities) for enrichment estimates.}
+\item{prob}{a \code{matrix}, \code{data.frame}, or
+\code{\linkS4class{DataFrame}} of probability values (p-values or
+posterior probabilities) for enrichment estimates.}
 
-\item{peptideInfo}{a \code{data.frame} or \code{\linkS4class{DataFrame}} of peptide
-information. Peptide identifiers (\code{pep_id}) can be specified via row names
-of the \code{counts}, \code{logfc}, \code{prob}, or \code{peptideInfo} objects.
-Valid construction of a \code{PhIPData} object only requires a \code{pep_id}, but
-inclusion of other parameters, such as peptide positions or species, enables use
-of other convenient functions for filtering peptides.}
+\item{peptideInfo}{a \code{data.frame} or \code{\linkS4class{DataFrame}} of
+peptide information. Peptide identifiers (\code{pep_id}) can be specified
+via row names of the \code{counts}, \code{logfc}, \code{prob},
+or \code{peptideInfo} objects.}
 
-\item{sampleInfo}{a \code{data.frame} or \code{\linkS4class{DataFrame}} of additional sample
-information. Unique sample identifiers can be specific via column names of the
-\code{counts}, \code{logfc}, \code{prob}, or \code{sampleInfo} objects.}
+\item{sampleInfo}{a \code{data.frame} or \code{\linkS4class{DataFrame}} of
+additional sample information.}
 
-\item{metadata}{a \code{list} object containing experiment-specific metadata}
+\item{metadata}{a \code{list} object containing experiment-specific metadata.}
 
-\item{.defaultNames}{vector of default names to use when the sample and peptide ID
-disagree across the metadata and the \code{counts}, \code{logfc}, and \code{prob} matrices.
-If \code{.defaultNames} is of length 1, the same source is used for both peptide and
-sample identifiers. If \code{.defaultNames} is longer than 2, the first and second
-elements correspond to the default names to use for peptides and samples, respectively.
-Valid options are:
-\itemize{
-    \item{"info": }{names should be taken from the \code{SampleInfo} or \code{peptideInfo} objects.}
-    \item{"counts": }{names should be taken from the row/column names of the \code{counts} object.}
-    \item{"logfc": }{names should be taken from the row/column names of the \code{logfc} object.}
-    \item{"prob": }{names should be taken from the row/column names of the \code{prob} object.}
-}}
+\item{.defaultNames}{vector of default names to use when sample and peptide
+    identifiers disagree across the metadata and the \code{counts},
+    \code{logfc}, and \code{prob} matrices. If \code{.defaultNames} is of
+    length 1, the same source is used for both peptide and sample
+    identifiers. If \code{.defaultNames} is longer than 2, the first and
+    second elements correspond to the default names to use for peptides
+    and samples, respectively.
+
+    Valid options are:
+    \itemize{
+        \item{"info": }{names should be taken from the \code{SampleInfo} or
+            \code{peptideInfo} objects.}
+        \item{"counts": }{names should be taken from the row/column names
+            of the \code{counts} object.}
+        \item{"logfc": }{names should be taken from the row/column names of
+            the \code{logfc} object.}
+        \item{"prob": }{names should be taken from the row/column names of
+            the \code{prob} object.}
+    }}
 }
 \description{
 The \code{PhIPData} class is a matrix-like container designed to organize
@@ -64,25 +69,36 @@ object contains at least three assays:
          a sample has an enriched antibody response for a peptide.
 }
 
-The \code{PhIPData} class extends the \link{RangedSummarizedExperiment} class, so
-methods documented in \code{?RangedsummarizedExperiment} and
+The \code{PhIPData} class extends the \link{RangedSummarizedExperiment}
+class, so methods documented in \code{?RangedsummarizedExperiment} and
 \code{?SummarizedExperiment} also work on \code{PhIPData} objects.
 }
 \details{
-New \code{PhIPData} objects
-can be created using the homonymous constructor.
-TODO Edit description. Empty objects are valid objects.
-Missing peptideInfo and sampleInfo are also valid objects, empty assays can also be initialized
-}
-\section{Contructor}{
-NA
-}
+Rows of \code{PhIPData} objects correspond to peptides of interest and are
+organized in \link{GRanges} or \link{GRangesList} objects. Though originally
+designed for genomic ranges, the sequence name and genomic range information
+in \link{GRanges} objects can be replaced with peptide names and amino acid
+positions, respectively. Peptide positions are specified by columns
+\code{pos_start} and \code{pos_end} in the \code{peptideInfo} argument of the
+constuctor. Additional peptide annotation can also be stored in
+\link{GRanges} objects and can be used to subset \code{PhIPData} objects as
+shown below.
 
+Columns of \code{PhIPData} objects represent samples. Sample metadata
+are stored in a \link{DataFrame} and can be accessed as shown below.
+
+Unlike \link{RangedSummarizedExperiment}/\link{SummarizedExperiment} objects,
+\code{PhIPData} objects must contain \code{counts}, \code{logfc}, \code{prob}.
+If any of the three assays are missing when the constructor is called, an
+empty matrix of the same names and dimensions is initialized for that assay.
+Sample and peptide names are harmonized across assays and annotation during
+construction and replacement.
+}
 \section{Accessors}{
 NA
 }
 
-\section{Sy}{
+\section{NA}{
 NA
 }
 

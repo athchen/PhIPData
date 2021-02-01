@@ -34,4 +34,6 @@ test_that("the alias database can be accessed and modified", {
   expect_error(deleteAlias("test_virus"),
                "Virus does not exist in the alias database.")
 
+  # clean-up test space
+  Sys.unsetenv("ALIAS_PATH")
 })
