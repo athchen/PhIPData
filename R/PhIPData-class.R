@@ -1,12 +1,8 @@
 #' @include defineBeads.R
-#' @import methods SummarizedExperiment GenomicRanges IRanges edgeR cli
 NULL
 
 ### PhIPData class  ==============================================
-.PhIPData <- setClass("PhIPData", contains = "RangedSummarizedExperiment")
-
-### PhIPData constructor =============================================
-#' PhIPData objects
+#' The PhIPData class
 #'
 #' @description
 #' The \code{PhIPData} class is a matrix-like container designed to organize
@@ -22,9 +18,10 @@ NULL
 #'          a sample has an enriched antibody response for a peptide.
 #' }
 #'
-#' The \code{PhIPData} class extends the \link{RangedSummarizedExperiment}
-#' class, so methods documented in \code{?RangedsummarizedExperiment} and
-#' \code{?SummarizedExperiment} also work on \code{PhIPData} objects.
+#' The \code{PhIPData} class extends the
+#' \linkS4class{RangedSummarizedExperiment} class, so methods documented
+#' in \linkS4class{RangedSummarizedExperiment} and
+#' \linkS4class{SummarizedExperiment} also work on \code{PhIPData} objects.
 #'
 #' @details
 #' Rows of \code{PhIPData} objects correspond to peptides of interest and are
@@ -50,28 +47,32 @@ NULL
 #' Sample and peptide names are harmonized across assays and annotation during
 #' construction and replacement.
 #'
-#' @section Constructor
+#' @section Constructor:
 #' \code{PhIPData} objects are constructed using the homonymous function and
 #' arguments as described above. Any \code{PhIPData} object can be created
 #' so long as peptide and sample identifiers (or lack thereof) are specified
-#' via any of the paramters.
+#' via any of the parameters.
 #'
-#' @section Accessors
+#' @seealso
+#'      \code{\link{PhIPData-methods}} for accessors and modifiers for PhIPData
+#'      components.
+#'      \linkS4class{SummarizedExperiment}
 #'
-#'
-#' @section
+#' @importClassesFrom SummarizedExperiment RangedSummarizedExperiment
+.PhIPData <- setClass("PhIPData", contains = "RangedSummarizedExperiment")
+
+### PhIPData constructor =============================================
+#' @rdname PhIPData-class
 #'
 #' @param counts a \code{matrix}, \code{data.frame}, or
-#'     \code{\linkS4class{DataFrame}}of integer read counts.
+#'     \code{\linkS4class{DataFrame}}of \strong{integer} read counts.
 #' @param logfc a \code{matrix}, \code{data.frame}, or
 #'     \code{\linkS4class{DataFrame}} of log10 estimated fold changes.
 #' @param prob a \code{matrix}, \code{data.frame}, or
 #'     \code{\linkS4class{DataFrame}} of probability values (p-values or
 #'     posterior probabilities) for enrichment estimates.
 #' @param peptideInfo a \code{data.frame} or \code{\linkS4class{DataFrame}} of
-#'    peptide information. Peptide identifiers (\code{pep_id}) can be specified
-#'    via row names of the \code{counts}, \code{logfc}, \code{prob},
-#'    or \code{peptideInfo} objects.
+#'    peptide information.
 #' @param sampleInfo a \code{data.frame} or \code{\linkS4class{DataFrame}} of
 #'     additional sample information.
 #' @param metadata a \code{list} object containing experiment-specific metadata.
@@ -95,7 +96,40 @@ NULL
 #'             the \code{prob} object.}
 #'     }
 #'
-#' @export PhIPData
+#' @return A \code{PhIPData} object.
+#'
+#' @examples
+#' ## Construct a new PhIPData object
+#' counts_dat <- matrix(sample(1:1e6, 25, replace = TRUE), nrow = 5)
+#' logfc_dat <- matrix(rnorm(25, 0, 10), nrow = 5)
+#' prob_dat <- matrix(rbeta(25, 1, 1), nrow = 5)
+#'
+#' peptide_meta <- data.frame(pos_start = 1:5,
+#'       pos_end = 6:10,
+#'       species = c(rep("HIV", 3), rep("EBV", 2)))
+#' sample_meta <- data.frame(gender = sample(c("M", "F"), 5, T),
+#'      group = sample(c("ctrl", "trt", "beads"), 5, T))
+#' exp_meta<- list(date_run = as.Date("2021/01/20"),
+#'       reads_per_sample = colSums(counts_dat))
+#'
+#' rownames(counts_dat) <- rownames(logfc_dat) <-
+#'      rownames(prob_dat) <- rownames(peptide_meta) <-
+#'      paste0("pep_", 1:5)
+#' colnames(counts_dat) <- colnames(logfc_dat) <-
+#'      colnames(prob_dat) <- rownames(sample_meta) <-
+#'      paste0("sample_", 1:5)
+#'
+#' phip_obj <- PhIPData(counts_dat, logfc_dat, prob_dat,
+#'      peptide_meta, sample_meta, exp_meta)
+#' phip_obj
+#'
+#' @export
+#' @importClassesFrom SummarizedExperiment RangedSummarizedExperiment
+#' @importClassesFrom edgeR DGEList
+#' @importFrom S4Vectors DataFrame isEmpty setValidity2
+#' @importFrom GenomicRanges GRanges
+#' @importFrom IRanges IRanges
+#' @importFrom cli cli_alert_warning
 PhIPData <- function(counts = S4Vectors::DataFrame(),
                      logfc = S4Vectors::DataFrame(),
                      prob = S4Vectors::DataFrame(),
@@ -316,7 +350,8 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
     pep_end <- rep(0, length(peptide_names))
   } else {
     pep_meta <- S4Vectors::DataFrame(peptideInfo[, !colnames(peptideInfo) %in%
-                                                   c("pos_start", "pos_end")])
+                                                   c("pos_start", "pos_end"),
+                                                 drop = FALSE])
 
     warnings <- c(no_start = (!"pos_start" %in% colnames(peptideInfo)),
                   no_end = (!"pos_end" %in% colnames(peptideInfo)))
@@ -410,7 +445,7 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
   if(is.character(dim_check)) { dim_check } else NULL
 }
 
-# 4. sample and peptide names must be identical across all assays and annotation information.
+## 4. sample and peptide names must be identical across all assays and annotation information.
 .checkNames <- function(x){
 
   sample_names <- list(colnames(counts(x)), colnames(logfc(x)),
@@ -443,29 +478,105 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
 S4Vectors::setValidity2("PhIPData", .validPhIPData)
 
 ### Getters ==============================================
+#' @name PhIPData-methods
+#' @title Accessing and Modifying Information in PhIPData objects
+#'
+#' @description Methods to extract and modify \code{assay(s)}(including
+#' convenient functions for \code{counts}, \code{logfc}, and \code{prob}),
+#' \code{sampleInfo}, \code{peptideInfo}, and \code{metadata}.
+#'
+#' @details In addition to the functions detailed in
+#' \linkS4class{RangedSummarizedExperiment}, the \code{PhIPData} class includes
+#' conveniently named functions to quickly access and modify frequently used
+#' components of PhIPData objects.
+#'
+#' Replacement functions ensure that names of the replacement object are matched
+#' with the names of the \code{PhIPData} object.
+#'
+#' Since packages for identifying differential expression in RNA-seq experiments
+#' are frequently used for estimating fold-changes for peptide enrichments,
+#' the class also includes coercion methods to and from \linkS4class{DGEList}s.
+#'
+#' @examples
+#' example("PhIPData")
+#'
+#' replacement_dat <- matrix(1L, nrow = 5, ncol = 5)
+#'
+#' ## SummarizedExperiment Accessors and Setters
+#' assays(phip_obj)
+#' assays(phip_obj)$counts <- replacement_dat
+#' assay(phip_obj, "logfc")
+#' assay(phip_obj, "logfc") <- replacement_dat
+#'
+#' ## counts
+#' counts(phip_obj)
+#' counts(phip_obj) <- counts_dat
+#'
+#' ## logfc
+#' logfc(phip_obj)
+#' logfc(phip_obj) <- logfc_dat
+#'
+#' ## prob
+#' prob(phip_obj)
+#' prob(phip_obj) <- replacement_dat
+#'
+#' ## coercion functions
+#' as(phip_obj, "DGEList")
+#' as(phip_obj, "List")
+#' as(phip_obj, "list")
+#' @param x A \code{PhIPData} object
+#' @param value A \code{matrix}, \code{data.frame}, or \link{Data.Frame} of the
+#'      same dimensions (not necessarily the same names)
+#'
+#' @return Accessors: a \link{DataFrame} object
+#' @return Setters: a \code{PhIPData} object
+#'
+#' @seealso
+#' \code{\link[SummarizedExperiment]{assays}} for
+#' \linkS4class{SummarizedExperiment} operations.
+#' @rdname PhIPData-methods
+NULL
 
 #' @export
+#' @rdname PhIPData-methods
 setGeneric("counts", function(x, ...) standardGeneric("counts"))
+
+#' @export
 setMethod("counts", "PhIPData", function(x)
   SummarizedExperiment::assays(x)[["counts"]])
 
+
 #' @export
+#' @rdname PhIPData-methods
 setGeneric("logfc", function(x, ...) standardGeneric("logfc"))
+
+#' @export
 setMethod("logfc", "PhIPData", function(x)
   SummarizedExperiment::assays(x)[["logfc"]])
 
+
 #' @export
+#' @rdname PhIPData-methods
 setGeneric("prob", function(x, ...) standardGeneric("prob"))
+
+#' @export
 setMethod("prob", "PhIPData", function(x)
   SummarizedExperiment::assays(x)[["prob"]])
 
 #' @export
+#' @rdname PhIPData-methods
 setGeneric("peptideInfo", function(x, ...) standardGeneric("peptideInfo"))
+
+#' @export
 setMethod("peptideInfo", "PhIPData", function(x)
   SummarizedExperiment::rowRanges(x))
 
+
 #' @export
+#' @rdname PhIPData-methods
 setGeneric("sampleInfo", function(x, ...) standardGeneric("sampleInfo"))
+
+#' @export
 setMethod("sampleInfo", "PhIPData", function(x)
   SummarizedExperiment::colData(x))
 
@@ -473,6 +584,8 @@ setMethod("sampleInfo", "PhIPData", function(x)
 # This `assays` and `assay` replacement functions differs from the
 # SummarizedExperiment assays functions in that mismatched names returns
 # a valid object rather than an error.
+#' @export
+#' @rdname PhIPData-methods
 setReplaceMethod("assays", c("PhIPData", "list"), function(x, ..., value) {
 
   pep_names <- rownames(x)
@@ -500,11 +613,15 @@ setReplaceMethod("assays", c("PhIPData", "list"), function(x, ..., value) {
     stop(error)
   }
 
+  # Check counts
+
+
   validObject(new_object)
   new_object
 })
 
-
+#' @export
+#' @rdname PhIPData-methods
 setReplaceMethod("assays", c("PhIPData", "SimpleList"), function(x, ..., value) {
 
   pep_names <- rownames(x)
@@ -613,6 +730,7 @@ setReplaceMethod("assay", c("PhIPData", "character"), function(x, i, ..., value)
 
 # Convenience functions for standard Assays
 #' @export
+#' @rdname PhIPData-methods
 setGeneric("counts<-", function(x, value) standardGeneric("counts<-"))
 setReplaceMethod("counts", "PhIPData", function(x, value) {
   assay(x, "counts") <- value
@@ -620,6 +738,7 @@ setReplaceMethod("counts", "PhIPData", function(x, value) {
 })
 
 #' @export
+#' @rdname PhIPData-methods
 setGeneric("logfc<-", function(x, value) standardGeneric("logfc<-"))
 setReplaceMethod("logfc", "PhIPData", function(x, value) {
   assay(x, "logfc") <- value
@@ -627,6 +746,7 @@ setReplaceMethod("logfc", "PhIPData", function(x, value) {
 })
 
 #' @export
+#' @rdname PhIPData-methods
 setGeneric("prob<-", function(x, value) standardGeneric("prob<-"))
 setReplaceMethod("prob", "PhIPData", function(x, value) {
   assay(x, "prob") <- value
@@ -634,6 +754,7 @@ setReplaceMethod("prob", "PhIPData", function(x, value) {
 })
 
 #' @export
+#' @rdname PhIPData-methods
 setGeneric("peptideInfo<-", function(x, value) standardGeneric("peptideInfo<-"))
 setReplaceMethod("peptideInfo", "PhIPData", function(x, value){
   # check # of peptides match with assays
@@ -664,6 +785,8 @@ setReplaceMethod("peptideInfo", "PhIPData", function(x, value){
 })
 
 #' @export
+#' @rdname PhIPData-methods
+#' @importFrom cli cli_alert_warning cli_alert_info
 setGeneric("sampleInfo<-", function(x, value) standardGeneric("sampleInfo<-"))
 setReplaceMethod("sampleInfo", "PhIPData", function(x, value){
   # check # of samples match with assays
@@ -678,13 +801,13 @@ setReplaceMethod("sampleInfo", "PhIPData", function(x, value){
 
   ## Add 'group' column if it is not present
   if(!"group" %in% colnames(sample_meta)){
-    cli_alert_warning("No 'group' column in sampleInfo. Adding empty column.")
+    cli::cli_alert_warning("No 'group' column in sampleInfo. Adding empty column.")
     sample_meta$group <- NA
   }
 
   ## Warn if there are no beads-only samples
   if(!getBeadsName() %in% sample_meta$group){
-    cli_alert_info("No beads-only samples present in the PhIPData object.")
+    cli::cli_alert_info("No beads-only samples present in the PhIPData object.")
   }
 
   colData(x) <- sample_meta

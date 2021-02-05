@@ -3,7 +3,9 @@ Type: Package
 Title: Container for PhIP-seq experiments
 Version: 0.1.0
 Authors@R: c(person("Athena", "Chen", email = "achen70@jhu.edu", 
-    role = c("aut", "cre"), comment = c(ORCID = "0000-0001-6900-2264")), 
+    role = c("aut", "cre"), comment = c(ORCID = "0000-0001-6900-2264")),
+    person("Kai", "Kammers", email = "kai.kammers@jhu.edu",
+    role = c("aut")),
     person("Rob", "Scharpf", email = "rscharpf@jhu.edu", 
     role = c("aut")), 
     person("Ingo", "Ruczinski", email = "ingo@jhu.edu", 
@@ -33,6 +35,7 @@ Suggests:
 biocViews: Infrastructure, DataRepresentation
 BugReports: https://github.com/athchen/PhIPData/issues
 Collate: 
+    'defineBeads.R'
     'PhIPData-class.R'
     'alias.R'
     'library.R'

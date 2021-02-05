@@ -13,27 +13,21 @@ status](http://www.bioconductor.org/shields/build/release/bioc/PhIPData.svg)](ht
 coverage](https://codecov.io/gh/athchen/PhIPData/branch/main/graph/badge.svg)](https://codecov.io/gh/athchen/PhIPData?branch=main)
 <!-- badges: end -->
 
-The goal of PhIPData is to …
+The `PhIPData` class is used to store experimental results from
+phage-immunoprecipitation sequencing (PhIP-set) experiments in a
+matrix-like container.
 
-# To Do
-
-  - Make a show method
-      - What do we want to include in the show method? Is the default
-        okay?
-  - Make subset functions
-      - Make function to subset peptides by virus
-  - Make library functions
-  - Add documentation
-      - Note that many `SummarizedExperiment` getters and setters will
-        also work on the PhIPData objects
-          - `metadata()`: returns metadata
-          - `dimnames()`: returns sample names and peptide names
-          - `rownames()`: sets all the sample names
-          - `colnames()`: sets all the peptide names
-  - Make functions to select default libraries (e.g they can pass
-    `use_library("virscan")`)
-  - Make function to get experiment summary (e.g. library sizes)
-  - `pkgdown` template edits
+Building on the
+[`RangedSummarizedExperiment`](https://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html)
+class, `PhIPData` contains all of functionality of
+`SummarizedExperiments` and includes additional operations to facilitate
+analysis with PhIP-seq data. Like `SummarizedExperiments`, a key feature
+of `PhIPData` is the coordination of metadata when subsetting `PhIPData`
+objects. For example, if you wanted to examine experimental data for
+peptides from one particular virus, you can subset the experimental data
+and the associated peptide annotation with one command. This ensures all
+metadata (for samples, peptides, etc.) remain synced with the
+experimental data throughout analysis.
 
 ## Installation
 
@@ -50,41 +44,51 @@ BiocManager::install("PhIPData")
 To load the package:
 
 ``` r
-#library(PhIPData)
+library(PhIPData)
 ```
 
-## Example
+## Components of a PhIPData Object
 
-This is a basic example which shows you how to solve a common problem:
+As reflected in the figure below, the structure of a `PhIPData` object
+is nearly identical to the structure of a
+`SummarizedExperiment`/`RangedSummarizedExperiment` object.
 
-``` r
-# library(PhIPData)
-## basic example code
-```
+Each object contains at least three assays of data. These assays are:
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+  - `counts`: matrix of raw read counts,
+  - `logfc`: matrix of log10 estimated fold-changes (in comparison to
+    negative control samples),
+  - `prob`: matrix of probabilities (p-values or posterior
+    probabilities) associated with whether a sample shows an enriched
+    antibody response to the particular peptide.
 
-``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
-```
+The rows of a `PhIPData` object represent peptides of interest and the
+columns represent samples. Sample and peptide metadata are stored in
+`DataFrame`s. Each row of the metadata `DataFrame` specifies the
+peptide/sample, and the columns represent different features associated
+with the peptides/samples.
 
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this. You could also
-use GitHub Actions to re-render `README.Rmd` every time you push. An
-example workflow can be found here:
-<https://github.com/r-lib/actions/tree/master/examples>.
+In addition to sample- and peptide-specific metadata, experimental
+metadata such as associated papers, experimental parameters, sequencing
+dates, etc. are stored in a list-like component named `metadata`.
 
-You can also embed plots, for example:
+<div class="figure">
 
-<img src="man/figures/README-pressure-1.png" width="100%" />
+<img src="vignettes/extras/PhIPData.png" alt="Schematic of a PhIPData object. Commands used to access each component of the object are listed underneath its visual representation. Code in black indicates functions specific to `PhIPData` objects while functions in red extend `SummarizedExperiment` functions. Here, `pd` is a generic `PhIPData` object." width="\maxwidth" />
 
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+<p class="caption">
+
+Schematic of a PhIPData object. Commands used to access each component
+of the object are listed underneath its visual representation. Code in
+black indicates functions specific to `PhIPData` objects while functions
+in red extend `SummarizedExperiment` functions. Here, `pd` is a generic
+`PhIPData` object.
+
+</p>
+
+</div>
+
+## Example Use
+
+For an example of how to use `PhIPData` objects, please see the package
+vignette.

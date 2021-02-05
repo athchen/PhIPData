@@ -1,6 +1,6 @@
 ---
 title: "PhIPData: A Container for PhIP-Seq Experiments"
-author: "Athena Chen, Rob Scharpf, and Ingo Ruczinski"
+author: "Athena Chen, Kai Kammers, Rob Scharpf, and Ingo Ruczinski"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
@@ -95,8 +95,8 @@ virscan_info <- readr::read_tsv(virscan_file,
 n_samples <- 5L
 n_peps <- nrow(virscan_info)
 
-counts_dat <- matrix(runif(n_samples*n_peps, min = 1, max = 1e6), 
-                     nrow = n_peps)
+counts_dat <- matrix(sample(1:1e6, n_samples*n_peps, replace = TRUE),
+                 nrow = n_peps)
 logfc_dat <- matrix(rnorm(n_samples*n_peps, mean = 0, sd = 10), 
                     nrow = n_peps)
 prob_dat <- matrix(rbeta(n_samples*n_peps, shape1 = 1, shape2 = 1), 
@@ -105,7 +105,7 @@ prob_dat <- matrix(rbeta(n_samples*n_peps, shape1 = 1, shape2 = 1),
 # Sample metadata -------------
 sample_meta <- data.frame(sample_name = paste0("sample", 1:n_samples),
                           gender = sample(c("M", "F"), n_samples, T),
-                          group = sample(c("ctrl", "trt"), n_samples, T))
+                          group = sample(c("ctrl", "trt", "beads"), n_samples, T))
 
 # Set row/column names -------------
 rownames(counts_dat) <- rownames(logfc_dat) <-
