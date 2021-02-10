@@ -17,7 +17,7 @@ getLibrary(name)
 makeLibrary(library, name)
 }
 \arguments{
-\item{path}{path to a folder containing .rds files for each library}
+\item{path}{path to a folder containing a .rds files for each library}
 
 \item{name}{name of the library}
 

@@ -119,8 +119,8 @@ prob_dat <- matrix(rbeta(25, 1, 1), nrow = 5)
 peptide_meta <- data.frame(pos_start = 1:5,
       pos_end = 6:10,
       species = c(rep("HIV", 3), rep("EBV", 2)))
-sample_meta <- data.frame(gender = sample(c("M", "F"), 5, T),
-     group = sample(c("ctrl", "trt", "beads"), 5, T))
+sample_meta <- data.frame(gender = sample(c("M", "F"), 5, TRUE),
+     group = sample(c("ctrl", "trt", "beads"), 5, TRUE))
 exp_meta<- list(date_run = as.Date("2021/01/20"),
       reads_per_sample = colSums(counts_dat))
 

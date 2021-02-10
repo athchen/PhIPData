@@ -1,3 +1,4 @@
+#' @import SummarizedExperiment methods S4Vectors
 #' @include defineBeads.R
 NULL
 
@@ -57,8 +58,6 @@ NULL
 #'      \code{\link{PhIPData-methods}} for accessors and modifiers for PhIPData
 #'      components.
 #'      \linkS4class{SummarizedExperiment}
-#'
-#' @importClassesFrom SummarizedExperiment RangedSummarizedExperiment
 .PhIPData <- setClass("PhIPData", contains = "RangedSummarizedExperiment")
 
 ### PhIPData constructor =============================================
@@ -107,8 +106,8 @@ NULL
 #' peptide_meta <- data.frame(pos_start = 1:5,
 #'       pos_end = 6:10,
 #'       species = c(rep("HIV", 3), rep("EBV", 2)))
-#' sample_meta <- data.frame(gender = sample(c("M", "F"), 5, T),
-#'      group = sample(c("ctrl", "trt", "beads"), 5, T))
+#' sample_meta <- data.frame(gender = sample(c("M", "F"), 5, TRUE),
+#'      group = sample(c("ctrl", "trt", "beads"), 5, TRUE))
 #' exp_meta<- list(date_run = as.Date("2021/01/20"),
 #'       reads_per_sample = colSums(counts_dat))
 #'
@@ -124,7 +123,6 @@ NULL
 #' phip_obj
 #'
 #' @export
-#' @importClassesFrom SummarizedExperiment RangedSummarizedExperiment
 #' @importClassesFrom edgeR DGEList
 #' @importFrom S4Vectors DataFrame isEmpty setValidity2
 #' @importFrom GenomicRanges GRanges
@@ -318,20 +316,6 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
   ## Coerce all assays into DataFrames
   assay_list <- lapply(assay_list, S4Vectors::DataFrame)
 
-  ## Coerce counts assay to integers
-  ## Need to deal with special case when there are no samples since as.integer
-  ## reduces to a matrix of 0 rows (rather than # of peptides)
-  count_int <- if(ncol(assay_list[["counts"]]) == 0){
-    assay_list[["counts"]]
-  } else {
-    endoapply(assay_list[["counts"]], as.integer)
-  }
-  ## Return error if integer coercion changed data
-  if(any(count_int != assay_list[["counts"]])){
-    stop("'counts' must be integers.")
-  }
-  assay_list[["counts"]] <- count_int
-
   ## Correct names
   for(assay in assays){
     if(!is.null(peptide_names)) { rownames(assay_list[[assay]]) <- peptide_names }
@@ -425,12 +409,6 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
       error <- c(error, msg)
     }
 
-    counts_int <- sapply(counts(x), function(x) is.integer(x) | is.na(x))
-    if(!all(counts_int)) {
-      msg <- "must be integers"
-      error <- c(error, msg)
-    }
-
     error <- paste0(error, collapse = " and ")
 
     if(error != ""){
@@ -497,6 +475,23 @@ S4Vectors::setValidity2("PhIPData", .validPhIPData)
 #' are frequently used for estimating fold-changes for peptide enrichments,
 #' the class also includes coercion methods to and from \linkS4class{DGEList}s.
 #'
+#' @section Available methods:
+#' In the following code snippets, \code{x} is a \linkS4class{PhIPData} object,
+#' \code{value} is a matrix-like object with the same dimensions as \code{x},
+#' and \code{...} are further arguments passed to \code{\link{assay}} (for the getter) or \code{\link{assay<-}} (for the setter).
+#' \describe{
+#' \item{\code{counts(x, ...)}, \code{counts(x, ...) <- value}:}{
+#' Get or set a matrix of raw read counts
+#' }
+#' \item{\code{logfc(x, ...)}, \code{logfc(x, ...) <- value}:}{
+#' Get or set a matrix of log10 estimated fold changes (in comparison to beads-only samples)
+#' }
+#' \item{\code{prob(x, ...)}, \code{pob(x, ...) <- value}:}{
+#' Get or set a matrix of probabilities associated with whether
+#'          a sample has an enriched antibody response for a peptide.
+#' }
+#' }
+#'
 #' @examples
 #' example("PhIPData")
 #'
@@ -524,9 +519,17 @@ S4Vectors::setValidity2("PhIPData", .validPhIPData)
 #' as(phip_obj, "DGEList")
 #' as(phip_obj, "List")
 #' as(phip_obj, "list")
+#'
+#' @param object A \code{PhIPData} object
 #' @param x A \code{PhIPData} object
-#' @param value A \code{matrix}, \code{data.frame}, or \link{Data.Frame} of the
-#'      same dimensions (not necessarily the same names)
+#' @param i A \code{numeric}, {character}
+#' @param withDimnames Parameter for
+#'      \linkS4class{RangedSummarizedExperiment} class functions. Overrided
+#'      since row/column names are automatically synced within each object.
+#' @param ... parameters for \code{\link[SummarizedExperiment]{assays}},
+#'      which are typically not needed.
+#' @param value A \code{matrix}, \code{data.frame}, or \linkS4class{DataFrame}
+#'      of the same dimensions (not necessarily the same names)
 #'
 #' @return Accessors: a \link{DataFrame} object
 #' @return Setters: a \code{PhIPData} object
@@ -534,51 +537,51 @@ S4Vectors::setValidity2("PhIPData", .validPhIPData)
 #' @seealso
 #' \code{\link[SummarizedExperiment]{assays}} for
 #' \linkS4class{SummarizedExperiment} operations.
-#' @rdname PhIPData-methods
 NULL
 
 #' @export
 #' @rdname PhIPData-methods
-setGeneric("counts", function(x, ...) standardGeneric("counts"))
+#' @importFrom BiocGenerics counts
+setMethod("counts", "PhIPData", function(object, ...)
+  SummarizedExperiment::assay(object, "counts", ...))
 
 #' @export
-setMethod("counts", "PhIPData", function(x)
-  SummarizedExperiment::assays(x)[["counts"]])
+#' @rdname PhIPData-methods
+setGeneric("logfc", function(object, ...) standardGeneric("logfc"))
+
+#' @export
+#' @rdname PhIPData-methods
+setMethod("logfc", "PhIPData", function(object, ...)
+  SummarizedExperiment::assay(object, "logfc", ...))
 
 
 #' @export
 #' @rdname PhIPData-methods
-setGeneric("logfc", function(x, ...) standardGeneric("logfc"))
+setGeneric("prob", function(object, ...) standardGeneric("prob"))
 
 #' @export
-setMethod("logfc", "PhIPData", function(x)
-  SummarizedExperiment::assays(x)[["logfc"]])
+#' @rdname PhIPData-methods
+setMethod("prob", "PhIPData", function(object, ...)
+  SummarizedExperiment::assay(object, "prob", ...))
+
+#' @export
+#' @rdname PhIPData-methods
+setGeneric("peptideInfo", function(object, ...) standardGeneric("peptideInfo"))
+
+#' @export
+#' @rdname PhIPData-methods
+setMethod("peptideInfo", "PhIPData", function(object, ...)
+  SummarizedExperiment::rowRanges(object, ...))
 
 
 #' @export
 #' @rdname PhIPData-methods
-setGeneric("prob", function(x, ...) standardGeneric("prob"))
-
-#' @export
-setMethod("prob", "PhIPData", function(x)
-  SummarizedExperiment::assays(x)[["prob"]])
+setGeneric("sampleInfo", function(object, ...) standardGeneric("sampleInfo"))
 
 #' @export
 #' @rdname PhIPData-methods
-setGeneric("peptideInfo", function(x, ...) standardGeneric("peptideInfo"))
-
-#' @export
-setMethod("peptideInfo", "PhIPData", function(x)
-  SummarizedExperiment::rowRanges(x))
-
-
-#' @export
-#' @rdname PhIPData-methods
-setGeneric("sampleInfo", function(x, ...) standardGeneric("sampleInfo"))
-
-#' @export
-setMethod("sampleInfo", "PhIPData", function(x)
-  SummarizedExperiment::colData(x))
+setMethod("sampleInfo", "PhIPData", function(object, ...)
+  SummarizedExperiment::colData(object, ...))
 
 ### Setters ==============================================
 # This `assays` and `assay` replacement functions differs from the
@@ -653,7 +656,10 @@ setReplaceMethod("assays", c("PhIPData", "SimpleList"), function(x, ..., value) 
   new_object
 })
 
-setReplaceMethod("assay", c("PhIPData", "missing"), function(x, i, ..., value) {
+#' @export
+#' @rdname PhIPData-methods
+setReplaceMethod("assay", c("PhIPData", "missing"),
+                 function(x, i, withDimnames = TRUE, ..., value) {
 
   new_object <- if(!is.null(value)){
     rownames(value) <- rownames(x)
@@ -678,7 +684,10 @@ setReplaceMethod("assay", c("PhIPData", "missing"), function(x, i, ..., value) {
   new_object
 })
 
-setReplaceMethod("assay", c("PhIPData", "numeric"), function(x, i, ..., value) {
+#' @export
+#' @rdname PhIPData-methods
+setReplaceMethod("assay", c("PhIPData", "numeric"),
+                 function(x, i, withDimnames = TRUE, ..., value) {
 
   new_object <- if(!is.null(value)){
     rownames(value) <- rownames(x)
@@ -703,7 +712,10 @@ setReplaceMethod("assay", c("PhIPData", "numeric"), function(x, i, ..., value) {
   new_object
 })
 
-setReplaceMethod("assay", c("PhIPData", "character"), function(x, i, ..., value) {
+#' @export
+#' @rdname PhIPData-methods
+setReplaceMethod("assay", c("PhIPData", "character"),
+                 function(x, i, withDimnames = TRUE, ..., value) {
 
   new_object <- if(!is.null(value)){
     rownames(value) <- rownames(x)
@@ -731,39 +743,49 @@ setReplaceMethod("assay", c("PhIPData", "character"), function(x, i, ..., value)
 # Convenience functions for standard Assays
 #' @export
 #' @rdname PhIPData-methods
-setGeneric("counts<-", function(x, value) standardGeneric("counts<-"))
-setReplaceMethod("counts", "PhIPData", function(x, value) {
-  assay(x, "counts") <- value
-  x
+#' @importFrom BiocGenerics "counts<-"
+setReplaceMethod("counts", c("PhIPData", "ANY"), function(object, ..., value) {
+  assay(object, "counts") <- value
+  object
 })
 
 #' @export
 #' @rdname PhIPData-methods
-setGeneric("logfc<-", function(x, value) standardGeneric("logfc<-"))
-setReplaceMethod("logfc", "PhIPData", function(x, value) {
-  assay(x, "logfc") <- value
-  x
+setGeneric("logfc<-", function(object, ..., value) standardGeneric("logfc<-"))
+
+#' @export
+#' @rdname PhIPData-methods
+setReplaceMethod("logfc", "PhIPData", function(object, ..., value) {
+  assay(object, "logfc") <- value
+  object
+})
+
+
+#' @export
+#' @rdname PhIPData-methods
+setGeneric("prob<-", function(object, ..., value) standardGeneric("prob<-"))
+
+#' @export
+#' @rdname PhIPData-methods
+setReplaceMethod("prob", "PhIPData", function(object, ..., value) {
+  assay(object, "prob") <- value
+  object
 })
 
 #' @export
 #' @rdname PhIPData-methods
-setGeneric("prob<-", function(x, value) standardGeneric("prob<-"))
-setReplaceMethod("prob", "PhIPData", function(x, value) {
-  assay(x, "prob") <- value
-  x
-})
+setGeneric("peptideInfo<-", function(object, value) standardGeneric("peptideInfo<-"))
 
 #' @export
 #' @rdname PhIPData-methods
-setGeneric("peptideInfo<-", function(x, value) standardGeneric("peptideInfo<-"))
-setReplaceMethod("peptideInfo", "PhIPData", function(x, value){
+setReplaceMethod("peptideInfo", "PhIPData", function(object, value){
   # check # of peptides match with assays
-  if(nrow(value) != nrow(counts(x))){
+  if(nrow(value) != nrow(counts(object))){
     stop("The number of peptides in the annotation differ from the number of peptides in `counts`.")
   }
 
   # get peptide names and sample names from existing x
-  rownames(value) <- peptide_names <- dimnames(x)[[1]]
+  rownames(value) <- peptide_names <- dimnames(object)[[1]]
 
   new_pepInfo <- .tidyPeptideInfo(value, peptide_names)
 
@@ -776,26 +798,29 @@ setReplaceMethod("peptideInfo", "PhIPData", function(x, value){
   if(!S4Vectors::isEmpty(pep_meta)){ mcols(row_info) <- pep_meta }
 
   # Why does setting a new rowRanges erase all my row names for the x?!?!?!?!?
-  rowRanges(x) <- row_info
-  rownames(x) <- peptide_names
+  rowRanges(object) <- row_info
+  rownames(object) <- peptide_names
 
-  validObject(x)
+  validObject(object)
 
-  x
+  object
 })
 
 #' @export
 #' @rdname PhIPData-methods
+setGeneric("sampleInfo<-", function(object, ..., value) standardGeneric("sampleInfo<-"))
+
+#' @export
+#' @rdname PhIPData-methods
 #' @importFrom cli cli_alert_warning cli_alert_info
-setGeneric("sampleInfo<-", function(x, value) standardGeneric("sampleInfo<-"))
-setReplaceMethod("sampleInfo", "PhIPData", function(x, value){
+setReplaceMethod("sampleInfo", "PhIPData", function(object, value){
   # check # of samples match with assays
-  if(nrow(value) != ncol(counts(x))){
+  if(nrow(value) != ncol(counts(object))){
     stop("The number of samples in the annotation differ from the number of samples in `counts`.")
   }
 
   # get peptide names and sample names from existing object
-  rownames(value) <- sample_names <- dimnames(x)[[2]]
+  rownames(value) <- sample_names <- dimnames(object)[[2]]
 
   sample_meta <- S4Vectors::DataFrame(value, row.names = sample_names)
 
@@ -810,11 +835,11 @@ setReplaceMethod("sampleInfo", "PhIPData", function(x, value){
     cli::cli_alert_info("No beads-only samples present in the PhIPData object.")
   }
 
-  colData(x) <- sample_meta
+  colData(object) <- sample_meta
 
-  validObject(x)
+  validObject(object)
 
-  x
+  object
 })
 
 ### Subsetters ==============================================

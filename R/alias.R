@@ -42,7 +42,7 @@
 #'      rep("Epstein-Barr virus", 2)))
 #'
 #' phip_obj <- PhIPData(counts = counts_dat, peptideInfo = peptide_meta)
-#' subset(phip_obj, grepl(getAlias("HIV"), species, ignore.case = T))
+#' subset(phip_obj, grepl(getAlias("HIV"), species, ignore.case = TRUE))
 #' @name aliases
 #'
 #' @include PhIPData-class.R
@@ -72,6 +72,7 @@ setAliasPath <- function(path){
   }
 }
 
+globalVariables("alias")
 alias_env <- new.env(parent = emptyenv())
 load(getAliasPath(), envir = alias_env)
 

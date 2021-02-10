@@ -12,6 +12,11 @@ test_that("libraries can be created and used to make valid PhIPData objects.", {
   setLibraryPath(extdata_loc)
   expect_equal(getLibraryPath(), extdata_loc)
 
+  # Test library creation
+  if(file.exists(paste0(extdata_loc, "/virscan.rds"))){
+    file.remove(paste0(extdata_loc, "/virscan.rds"))
+  }
+
   virscan_file <- system.file("extdata", "virscan.tsv", package = "PhIPData")
   virscan_info <- readr::read_tsv(virscan_file,
                                   col_types = readr::cols(

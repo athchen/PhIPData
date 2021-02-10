@@ -78,6 +78,7 @@ getLibrary <- function(name){
 #' specified peptide information.
 #'
 #' @export
+#' @importFrom utils menu
 makeLibrary <- function(library, name){
   path <- paste0(getLibraryPath(), "/", name, ".rds")
 

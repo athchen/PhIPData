@@ -167,9 +167,6 @@ test_that("invalid inputs return proper errors", {
   # negative counts
   expect_error(PhIPData(counts = matrix(-15:14, nrow = 5)),
                "'counts' cannot have negative entries.")
-  # non-integer
-  expect_error(PhIPData(counts = matrix(seq(0, 10, length = 20), nrow = 5)),
-               "'counts' must be integers.")
 
   # incompatible dimensions
   expect_error(PhIPData(counts = counts,
@@ -241,10 +238,6 @@ test_that("setter functions change the object as desired", {
   # Check that invalid replacement generates warning
   expect_error(counts(phip_obj) <- matrix(-1L, nrow = n_peptides, ncol = n_samples),
                "'counts' cannot have negative entries.")
-  expect_error(counts(phip_obj) <- matrix(0.5, nrow = n_peptides, ncol = n_samples),
-               "'counts' must be integers.")
-  expect_error(counts(phip_obj) <- matrix(-1.5, nrow = n_peptides, ncol = n_samples),
-               "'counts' cannot have negative entries and must be integers.")
 
   # Check peptideInfo replacement; new info has different rownames
   peptideInfo(phip_obj) <- virscan_info[, 1:10]

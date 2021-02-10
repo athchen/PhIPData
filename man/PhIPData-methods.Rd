@@ -2,49 +2,93 @@
 % Please edit documentation in R/PhIPData-class.R
 \name{PhIPData-methods}
 \alias{PhIPData-methods}
-\alias{counts}
+\alias{counts,PhIPData-method}
 \alias{logfc}
+\alias{logfc,PhIPData-method}
 \alias{prob}
+\alias{prob,PhIPData-method}
 \alias{peptideInfo}
+\alias{peptideInfo,PhIPData-method}
 \alias{sampleInfo}
+\alias{sampleInfo,PhIPData-method}
 \alias{assays<-,PhIPData,list-method}
 \alias{assays<-,PhIPData,SimpleList-method}
-\alias{counts<-}
+\alias{assay<-,PhIPData,missing-method}
+\alias{assay<-,PhIPData,numeric-method}
+\alias{assay<-,PhIPData,character-method}
+\alias{counts<-,PhIPData-method}
 \alias{logfc<-}
+\alias{logfc<-,PhIPData-method}
 \alias{prob<-}
+\alias{prob<-,PhIPData-method}
 \alias{peptideInfo<-}
+\alias{peptideInfo<-,PhIPData-method}
 \alias{sampleInfo<-}
+\alias{sampleInfo<-,PhIPData-method}
 \title{Accessing and Modifying Information in PhIPData objects}
 \usage{
-counts(x, ...)
+\S4method{counts}{PhIPData}(object, ...)
 
-logfc(x, ...)
+logfc(object, ...)
 
-prob(x, ...)
+\S4method{logfc}{PhIPData}(object, ...)
 
-peptideInfo(x, ...)
+prob(object, ...)
 
-sampleInfo(x, ...)
+\S4method{prob}{PhIPData}(object, ...)
+
+peptideInfo(object, ...)
+
+\S4method{peptideInfo}{PhIPData}(object, ...)
+
+sampleInfo(object, ...)
+
+\S4method{sampleInfo}{PhIPData}(object, ...)
 
 \S4method{assays}{PhIPData,list}(x, withDimnames = TRUE, ...) <- value
 
 \S4method{assays}{PhIPData,SimpleList}(x, withDimnames = TRUE, ...) <- value
 
-counts(x) <- value
+\S4method{assay}{PhIPData,missing}(x, i, withDimnames = TRUE, ...) <- value
 
-logfc(x) <- value
+\S4method{assay}{PhIPData,numeric}(x, i, withDimnames = TRUE, ...) <- value
 
-prob(x) <- value
+\S4method{assay}{PhIPData,character}(x, i, withDimnames = TRUE, ...) <- value
 
-peptideInfo(x) <- value
+\S4method{counts}{PhIPData}(object, ...) <- value
 
-sampleInfo(x) <- value
+logfc(object, ...) <- value
+
+\S4method{logfc}{PhIPData}(object, ...) <- value
+
+prob(object, ...) <- value
+
+\S4method{prob}{PhIPData}(object, ...) <- value
+
+peptideInfo(object) <- value
+
+\S4method{peptideInfo}{PhIPData}(object) <- value
+
+sampleInfo(object, ...) <- value
+
+\S4method{sampleInfo}{PhIPData}(object) <- value
 }
 \arguments{
+\item{object}{A \code{PhIPData} object}
+
+\item{...}{parameters for \code{\link[SummarizedExperiment]{assays}},
+which are typically not needed.}
+
 \item{x}{A \code{PhIPData} object}
 
-\item{value}{A \code{matrix}, \code{data.frame}, or \link{Data.Frame} of the
-same dimensions (not necessarily the same names)}
+\item{withDimnames}{Parameter for
+\linkS4class{RangedSummarizedExperiment} class functions. Overrided
+since row/column names are automatically synced within each object.}
+
+\item{value}{A \code{matrix}, \code{data.frame}, or \linkS4class{DataFrame}
+of the same dimensions (not necessarily the same names)}
+
+\item{i}{A \code{numeric}, {character}}
 }
 \value{
 Accessors: a \link{DataFrame} object
@@ -69,6 +113,25 @@ Since packages for identifying differential expression in RNA-seq experiments
 are frequently used for estimating fold-changes for peptide enrichments,
 the class also includes coercion methods to and from \linkS4class{DGEList}s.
 }
+\section{Available methods}{
+
+In the following code snippets, \code{x} is a \linkS4class{PhIPData} object,
+\code{value} is a matrix-like object with the same dimensions as \code{x},
+and \code{...} are further arguments passed to \code{\link{assay}} (for the getter) or \code{\link{assay<-}} (for the setter).
+\describe{
+\item{\code{counts(x, ...)}, \code{counts(x, ...) <- value}:}{
+Get or set a matrix of raw read counts
+}
+\item{\code{logfc(x, ...)}, \code{logfc(x, ...) <- value}:}{
+Get or set a matrix of log10 estimated fold changes (in comparison to beads-only samples)
+}
+\item{\code{prob(x, ...)}, \code{pob(x, ...) <- value}:}{
+Get or set a matrix of probabilities associated with whether
+         a sample has an enriched antibody response for a peptide.
+}
+}
+}
+
 \examples{
 example("PhIPData")
 
@@ -96,6 +159,7 @@ prob(phip_obj) <- replacement_dat
 as(phip_obj, "DGEList")
 as(phip_obj, "List")
 as(phip_obj, "list")
+
 }
 \seealso{
 \code{\link[SummarizedExperiment]{assays}} for

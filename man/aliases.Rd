@@ -79,5 +79,5 @@ peptide_meta <- data.frame(species = c(rep("human immunodeficiency virus", 3),
      rep("Epstein-Barr virus", 2)))
 
 phip_obj <- PhIPData(counts = counts_dat, peptideInfo = peptide_meta)
-subset(phip_obj, grepl(getAlias("HIV"), species, ignore.case = T))
+subset(phip_obj, grepl(getAlias("HIV"), species, ignore.case = TRUE))
 }
