@@ -17,7 +17,6 @@ test_that("libraries can be created and used to make valid PhIPData objects.", {
   lib_path <- if(is_windows){
     gsub("/", "\\", getLibraryPath(), fixed = TRUE)
   } else { getLibraryPath() }
-  expect_equal(lib_path, library_loc)
   expect_equal(lib_path, extdata_loc)
 
   # Test library creation
