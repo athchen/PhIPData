@@ -3,6 +3,8 @@ context("Libraries can be stored and loaded for populating peptide information."
 test_that("libraries can be created and used to make valid PhIPData objects.", {
   is_windows <- grepl("windows", .Platform$OS.type)
 
+  expect_true(is_windows)
+
   library_loc <- system.file("libraries", package = "PhIPData")
   lib_path <- if(is_windows){
     gsub("/", "\\", getLibraryPath(), fixed = TRUE)
