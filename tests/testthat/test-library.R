@@ -4,10 +4,10 @@ test_that("libraries can be created and used to make valid PhIPData objects.", {
   is_windows <- grepl("windows", .Platform$OS.type)
 
   library_loc <- system.file("libraries", package = "PhIPData")
-  library_loc <- if(is_windows){
-    gsub("/", "\\", library_loc, fixed = TRUE)
-    } else { library_loc }
-  expect_equal(getLibraryPath(), library_loc)
+  lib_path <- if(is_windows){
+    gsub("/", "\\", getLibraryPath(), fixed = TRUE)
+    } else { getLibraryPath() }
+  expect_equal(lib_path, library_loc)
 
   # Test library path functions
   expect_error(setLibraryPath("invalid_path"), "Invalid specified path.")
