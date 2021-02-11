@@ -1,8 +1,12 @@
 context("Libraries can be stored and loaded for populating peptide information.")
 
 test_that("libraries can be created and used to make valid PhIPData objects.", {
+  is_windows <- grepl("windows", .Platform$OS.type)
 
   library_loc <- system.file("libraries", package = "PhIPData")
+  library_loc <- if(is_windows){
+    gsub("/", "\\", library_loc, fixed = TRUE)
+    } else { library_loc }
   expect_equal(getLibraryPath(), library_loc)
 
   # Test library path functions
