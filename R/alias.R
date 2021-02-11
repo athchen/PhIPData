@@ -21,7 +21,7 @@
 #'
 #' @param path path to \code{alias.rda}
 #' @param virus character vector of the alias
-#' @param pattern regexpression corresponding to the alias
+#' @param pattern character vector of regexpressions corresponding to the alias
 #'
 #' @examples
 #' ## Get and set path to alias.rda
@@ -34,6 +34,11 @@
 #' setAlias("test_virus", "test_pattern2")
 #' getAlias("test_virus")
 #' deleteAlias("test_virus")
+#'
+#' ## Edit and modify multiple aliases at once.
+#' setAlias(c("virus_1", "virus_2"), c("pattern_1", "pattern_2"))
+#' getAlias(c("virus_1", "virus_2"))
+#' deleteAlias(c("virus_1", "virus_2))
 #'
 #' ## Example of how to subset HIV using `getAlias`
 #' ## Often, it is useful to set the `ignore.case` of `grep`/`grepl` to TRUE.
@@ -76,9 +81,7 @@ globalVariables("alias")
 alias_env <- new.env(parent = emptyenv())
 load(getAliasPath(), envir = alias_env)
 
-#' @describeIn aliases return a regexpression corresponding to the alias.
-#' @export
-getAlias <- function(virus){
+.getOneAlias <- function(virus){
   if(!virus %in% alias_env$alias$alias){
     stop("Virus does not exist in the alias database.")
   } else {
@@ -86,33 +89,65 @@ getAlias <- function(virus){
   }
 }
 
+#' @describeIn aliases return a regexpression corresponding to the alias.
+#' @export
+getAlias <- function(virus){
+  sapply(virus, .getOneAlias, USE.NAMES = FALSE)
+}
+
+
 #' @describeIn aliases define/modify the regexpression for an alias.
 #' @export
 setAlias <- function(virus, pattern){
-
-  if(virus %in% alias_env$alias$alias){
-
-    if(alias_env$alias$pattern[alias_env$alias$alias == virus] == pattern) {
-      stop("Alias already exists in the alias database.")
-    } else {
-      alias_env$alias$pattern[alias_env$alias$alias == virus] <- pattern
-    }
-
-  } else {
-    alias_env$alias <- rbind(alias_env$alias,
-                             data.frame(alias = virus, pattern = pattern))
+  if(length(virus)!= length(pattern)){
+    stop("Input vector lengths are unequal.")
   }
 
-  alias_env$alias_loc <- getAliasPath()
-  save(alias,
-       envir = alias_env,
-       file = alias_env$alias_loc)
+  current_alias <- alias_env$alias
+
+  ## Look at whether any viruses need to be added or changed
+  ##    new_viruses: viruses to be added
+  ##    exist_viruses: viruses that exist in the database
+  ##        (may have the same patterns)
+  ##    replace_viruses: subset of exist viruses that need to have the pattern
+  ##        changed
+  new_viruses <- virus[!virus %in% current_alias$alias]
+  exist_viruses <- setdiff(virus, new_viruses)
+  current_pattern <- sapply(exist_viruses, function(x) {
+    pattern <- current_alias$pattern[current_alias$alias == x]
+    if(length(pattern) == 0) NA else pattern
+  })
+  replace_viruses <- exist_viruses[current_pattern != pattern[virus == exist_viruses]]
+  n_replace <- length(replace_viruses)
+  if(n_replace > 0){
+    cli::cli_alert_info("Replacing pattern{?s} for {n_replace} alias{?es}.")
+  }
+
+  if(sum(length(new_viruses), n_replace) ==0){
+    cli::cli_alert_info("No new alias-pattern combinations added.")
+  } else {
+    ## Add new aliases
+    new_alias <- rbind(current_alias,
+                       data.frame(alias = new_viruses,
+                                  pattern = pattern[virus == new_viruses]))
+    ## Replace patterns
+    for(replacement in replace_viruses){
+      new_alias$pattern[new_alias$alias == replacement] <-
+        pattern[virus == replacement]
+    }
+
+    ## Change environment
+    alias_env$alias <- new_alias
+
+    ## Save to where the environment is loaded
+    alias_env$alias_loc <- getAliasPath()
+    save(alias,
+         envir = alias_env,
+         file = alias_env$alias_loc)
+  }
 }
 
-#' @describeIn aliases remove an alias from the database.
-#' @export
-deleteAlias <- function(virus){
-
+.deleteOneAlias <- function(virus){
   if(!virus %in% alias_env$alias$alias){
     stop("Virus does not exist in the alias database.")
   } else {
@@ -124,4 +159,10 @@ deleteAlias <- function(virus){
   save(alias,
        envir = alias_env,
        file = alias_env$alias_loc)
+}
+
+#' @describeIn aliases remove an alias from the database.
+#' @export
+deleteAlias <- function(virus){
+  for(i in virus) .deleteOneAlias(i)
 }

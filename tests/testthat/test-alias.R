@@ -19,10 +19,6 @@ test_that("the alias database can be accessed and modified", {
   setAlias("test_virus", "test_pattern")
   expect_equal(getAlias("test_virus"), "test_pattern")
 
-  # Check setter when virus exists and pattern exists
-  expect_error(setAlias("test_virus", "test_pattern"),
-               "Alias already exists in the alias database.")
-
   # Check setter when virus exists
   setAlias("test_virus", "test_pattern2")
   expect_equal(getAlias("test_virus"), "test_pattern2")
@@ -36,4 +32,17 @@ test_that("the alias database can be accessed and modified", {
 
   # clean-up test space
   Sys.unsetenv("ALIAS_PATH")
+})
+
+test_that("Alias functions can be applied to vectors", {
+  # Check vectorization
+  expect_equal(getAlias(c("HIV", "EBV")), c("Human immunodeficiency virus", "Epstein-Barr"))
+  setAlias(c("test_1", "HIV"), c("pattern_1", "hiv"))
+  expect_equal(getAlias(c("test_1", "HIV")), c("pattern_1", "hiv"))
+  deleteAlias(c("test_1", "HIV"))
+  expect_error(getAlias(c("test_1", "HIV")),
+               "Virus does not exist in the alias database.")
+
+  ## clean-up test space
+  setAlias("HIV", "Human immunodeficiency virus")
 })

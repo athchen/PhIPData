@@ -24,7 +24,7 @@ deleteAlias(virus)
 
 \item{virus}{character vector of the alias}
 
-\item{pattern}{regexpression corresponding to the alias}
+\item{pattern}{character vector of regexpressions corresponding to the alias}
 }
 \description{
 Rather than typing out full viruses names or repeating
@@ -60,24 +60,3 @@ replaces the matched pattern.
 \item \code{deleteAlias}: remove an alias from the database.
 }}
 
-\examples{
-## Get and set path to alias.rda
-getAliasPath()
-\dontrun{setAliasPath("examplepath/alias.rda")}
-
-## Edit and modify aliases in the database
-setAlias("test_virus", "test_pattern")
-getAlias("test_virus")
-setAlias("test_virus", "test_pattern2")
-getAlias("test_virus")
-deleteAlias("test_virus")
-
-## Example of how to subset HIV using `getAlias`
-## Often, it is useful to set the `ignore.case` of `grep`/`grepl` to TRUE.
-counts_dat <- matrix(1:10, nrow = 5)
-peptide_meta <- data.frame(species = c(rep("human immunodeficiency virus", 3),
-     rep("Epstein-Barr virus", 2)))
-
-phip_obj <- PhIPData(counts = counts_dat, peptideInfo = peptide_meta)
-subset(phip_obj, grepl(getAlias("HIV"), species, ignore.case = TRUE))
-}
