@@ -4,9 +4,6 @@ test_that("libraries can be created and used to make valid PhIPData objects.", {
   is_windows <- grepl("windows", .Platform$OS.type)
 
   library_loc <- system.file("libraries", package = "PhIPData")
-  lib_path <- if(is_windows){
-    gsub("/", "\\", library_loc, fixed = TRUE)
-    } else { library_loc }
   expect_equal(getLibraryPath(), library_loc)
 
   # Test library path functions
@@ -14,7 +11,7 @@ test_that("libraries can be created and used to make valid PhIPData objects.", {
 
   extdata_loc <- system.file("extdata", package = "PhIPData")
   setLibraryPath(extdata_loc)
-  lib_path <- if(is_windows){
+  extdata_loc <- if(is_windows){
     gsub("/", "\\", extdata_loc, fixed = TRUE)
   } else { extdata_loc }
   expect_equal(lib_path, extdata_loc)
