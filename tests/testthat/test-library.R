@@ -3,8 +3,6 @@ context("Libraries can be stored and loaded for populating peptide information."
 test_that("libraries can be created and used to make valid PhIPData objects.", {
   is_windows <- grepl("windows", .Platform$OS.type)
 
-  expect_true(is_windows)
-
   library_loc <- system.file("libraries", package = "PhIPData")
   lib_path <- if(is_windows){
     gsub("/", "\\", getLibraryPath(), fixed = TRUE)
@@ -16,7 +14,11 @@ test_that("libraries can be created and used to make valid PhIPData objects.", {
 
   extdata_loc <- system.file("extdata", package = "PhIPData")
   setLibraryPath(extdata_loc)
-  expect_equal(getLibraryPath(), extdata_loc)
+  lib_path <- if(is_windows){
+    gsub("/", "\\", getLibraryPath(), fixed = TRUE)
+  } else { getLibraryPath() }
+  expect_equal(lib_path, library_loc)
+  expect_equal(lib_path, extdata_loc)
 
   # Test library creation
   if(file.exists(paste0(extdata_loc, "/virscan.rds"))){
