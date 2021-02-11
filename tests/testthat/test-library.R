@@ -5,9 +5,9 @@ test_that("libraries can be created and used to make valid PhIPData objects.", {
 
   library_loc <- system.file("libraries", package = "PhIPData")
   lib_path <- if(is_windows){
-    gsub("/", "\\", getLibraryPath(), fixed = TRUE)
-    } else { getLibraryPath() }
-  expect_equal(lib_path, library_loc)
+    gsub("/", "\\", library_loc, fixed = TRUE)
+    } else { library_loc }
+  expect_equal(getLibraryPath(), library_loc)
 
   # Test library path functions
   expect_error(setLibraryPath("invalid_path"), "Invalid specified path.")
@@ -15,8 +15,8 @@ test_that("libraries can be created and used to make valid PhIPData objects.", {
   extdata_loc <- system.file("extdata", package = "PhIPData")
   setLibraryPath(extdata_loc)
   lib_path <- if(is_windows){
-    gsub("/", "\\", getLibraryPath(), fixed = TRUE)
-  } else { getLibraryPath() }
+    gsub("/", "\\", extdata_loc, fixed = TRUE)
+  } else { extdata_loc }
   expect_equal(lib_path, extdata_loc)
 
   # Test library creation
