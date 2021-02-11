@@ -14,7 +14,7 @@ test_that("libraries can be created and used to make valid PhIPData objects.", {
   extdata_loc <- if(is_windows){
     gsub("/", "\\", extdata_loc, fixed = TRUE)
   } else { extdata_loc }
-  expect_equal(lib_path, extdata_loc)
+  expect_equal(getLibraryPath(), extdata_loc)
 
   # Test library creation
   if(file.exists(paste0(extdata_loc, "/virscan.rds"))){
