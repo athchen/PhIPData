@@ -46,5 +46,7 @@ Collate:
     'PhIPData-class.R'
     'alias.R'
     'library.R'
+    'subset.R'
+    'summaries.R'
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
