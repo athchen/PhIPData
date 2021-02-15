@@ -7,8 +7,7 @@
 
 [![R build
 status](https://github.com/athchen/PhIPData/workflows/R-CMD-check/badge.svg)](https://github.com/athchen/PhIPData/actions)
-[![BioC
-status](http://www.bioconductor.org/shields/build/release/bioc/PhIPData.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/PhIPData)
+<!-- [![BioC status](http://www.bioconductor.org/shields/build/release/bioc/PhIPData.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/PhIPData) -->
 [![Codecov test
 coverage](https://codecov.io/gh/athchen/PhIPData/branch/main/graph/badge.svg)](https://codecov.io/gh/athchen/PhIPData?branch=main)
 <!-- badges: end -->

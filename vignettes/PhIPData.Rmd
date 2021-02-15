@@ -1,6 +1,6 @@
 ---
 title: "PhIPData: A Container for PhIP-Seq Experiments"
-author: "Athena Chen, Kai Kammers, Rob Scharpf, and Ingo Ruczinski"
+author: "Athena Chen, Rob Scharpf, and Ingo Ruczinski"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
@@ -42,7 +42,7 @@ The `PhIPData` class is used to store experimental results from phage-immunoprec
 
 Building on the [`RangedSummarizedExperiment`](https://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html) class, `PhIPData` contains all of functionality of `SummarizedExperiments` and includes additional operations to facilitate analysis with PhIP-seq data. Like `SummarizedExperiments`, a key feature of `PhIPData` is the coordination of metadata when subsetting `PhIPData` objects. For example, if you wanted to examine experimental data for peptides from one particular virus, you can subset the experimental data and the associated peptide annotation with one command. This ensures all metadata (for samples, peptides, etc.) remain synced with the experimental data throughout analysis. 
 
-# Components of a PhIPData Object
+# Components of a `PhIPData` Object
 
 As reflected in the figure below, the structure of a `PhIPData` object is nearly identical to the structure of a `SummarizedExperiment`/`RangedSummarizedExperiment` object. 
 
@@ -60,7 +60,7 @@ In addition to sample- and peptide-specific metadata, experimental metadata such
 knitr::include_graphics("extras/PhIPData.png")
 ```
 
-# Creating a PhIPData object
+# Creating a `PhIPData` object
 
 ```{r setup, warning = F, message = F}
 library(dplyr)
@@ -133,7 +133,7 @@ phip_obj
 
 The `PhIPData()` constructor is quite flexible; mismatched dimension names across assays and metadata are automatically corrected, and missing assays are initialized with empty matrices of the same dimensions. For more details on the constructor, type `help(PhIPData)`. 
 
-# Accessing and modifying components of PhIPData object
+# Accessing and modifying components of `PhIPData` object
 
 ## Assays
 
@@ -235,6 +235,20 @@ In addition to subsetting by row indices, `PhIPData` supports subsetting rows us
 ebv_sub <- subset(phip_obj, grepl("Epstein-Barr virus", species))
 
 peptideInfo(ebv_sub)[, "species"]
+```
+
+To subset all beads-only samples from a `PhIPData` object, we can use the convenient wrapper function `subsetBeads()`:
+
+```{r}
+subsetBeads(phip_obj)
+```
+
+## `PhIPData` summaries
+
+To assess the quality of the data, we are often interested in the number of reads per sample. This can be done using the `librarySize()` function. Names can be removed by setting the `withDimnames` parameter to `FALSE`. 
+
+```{r}
+librarySize(phip_obj)
 ```
 
 ## Using template libraries

@@ -1,11 +1,9 @@
 Package: PhIPData
 Type: Package
 Title: Container for PhIP-Seq Experiments
-Version: 0.1.0
+Version: 0.99.0
 Authors@R: c(person("Athena", "Chen", email = "achen70@jhu.edu", 
     role = c("aut", "cre"), comment = c(ORCID = "0000-0001-6900-2264")),
-    person("Kai", "Kammers", email = "kai.kammers@jhu.edu",
-    role = c("aut")),
     person("Rob", "Scharpf", email = "rscharpf@jhu.edu", 
     role = c("aut")), 
     person("Ingo", "Ruczinski", email = "ingo@jhu.edu", 
