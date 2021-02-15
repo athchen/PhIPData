@@ -101,6 +101,11 @@ If any of the three assays are missing when the constructor is called, an
 empty matrix of the same names and dimensions is initialized for that assay.
 Sample and peptide names are harmonized across assays and annotation during
 construction and replacement.
+
+Though `counts` typically contain integer values for the number of reads
+aligned to each peptide, `PhIPData` only requires that stored values are
+non-negative numeric values. Pseudocounts or non-integer count values can also
+be stored in the `counts` assay.
 }
 \section{Constructor}{
 

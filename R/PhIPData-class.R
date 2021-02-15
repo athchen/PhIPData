@@ -48,6 +48,11 @@ NULL
 #' Sample and peptide names are harmonized across assays and annotation during
 #' construction and replacement.
 #'
+#' Though `counts` typically contain integer values for the number of reads
+#' aligned to each peptide, `PhIPData` only requires that stored values are
+#' non-negative numeric values. Pseudocounts or non-integer count values can also
+#' be stored in the `counts` assay.
+#'
 #' @section Constructor:
 #' \code{PhIPData} objects are constructed using the homonymous function and
 #' arguments as described above. Any \code{PhIPData} object can be created
