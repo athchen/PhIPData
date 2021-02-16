@@ -25,8 +25,7 @@ test_that("the alias database can be accessed and modified", {
 
   # Check remove function
   deleteAlias("test_virus")
-  expect_error(getAlias("test_virus"),
-               "Virus does not exist in the alias database.")
+  expect_equal(getAlias("test_virus"), NA_character_)
   expect_error(deleteAlias("test_virus"),
                "Virus does not exist in the alias database.")
 
@@ -40,8 +39,7 @@ test_that("Alias functions can be applied to vectors", {
   setAlias(c("test_1", "HIV"), c("pattern_1", "hiv"))
   expect_equal(getAlias(c("test_1", "HIV")), c("pattern_1", "hiv"))
   deleteAlias(c("test_1", "HIV"))
-  expect_error(getAlias(c("test_1", "HIV")),
-               "Virus does not exist in the alias database.")
+  expect_equal(getAlias(c("test_1", "HIV")), c(NA_character_, NA_character_))
 
   ## clean-up test space
   setAlias("HIV", "Human immunodeficiency virus")

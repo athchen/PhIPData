@@ -168,8 +168,8 @@ test_that("setter functions change the object as desired", {
                        sampleInfo = sampleInfo, peptideInfo = virscan_info)
 
   # Check assay replacement; newinfo has different names
-  replacement_matrix <- matrix(sample(1:1e6, n_samples*n_peptides, replace = T),
-                               nrow = n_peptides)
+  replacement_matrix <- matrix(sample(1:1e6, n_samples*n_peptides,
+                                      replace = TRUE), nrow = n_peptides)
 
   expect_error(assays(phip_obj) <- list(assay_1 = replacement_matrix,
                                         assay_2 = replacement_matrix),
@@ -184,11 +184,11 @@ test_that("setter functions change the object as desired", {
   expect_equal(unname(as.matrix(prob(phip_obj))), replacement_matrix)
 
   assay(phip_obj) <- counts
-  expect_equal(counts(phip_obj), counts)
+  expect_equal(counts(phip_obj), S4Vectors::DataFrame(counts))
   assay(phip_obj, 2) <- logfc
-  expect_equal(logfc(phip_obj), logfc)
+  expect_equal(logfc(phip_obj), S4Vectors::DataFrame(logfc))
   assay(phip_obj, "prob") <- prob
-  expect_equal(prob(phip_obj), prob)
+  expect_equal(prob(phip_obj), S4Vectors::DataFrame(prob))
 
   counts(phip_obj) <- logfc(phip_obj) <- prob(phip_obj) <- replacement_matrix
   expect_equal(unname(as.matrix(counts(phip_obj))), replacement_matrix)

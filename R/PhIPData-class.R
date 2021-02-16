@@ -160,14 +160,14 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
   ## assign names of "pep_rownumber"
   peptide_names <- .getPeptideNames(counts, logfc, prob, peptideInfo, .defaultNames[1])
   peptide_names <- if(is.null(peptide_names) & dims[1] != 0) {
-    paste0("pep_", 1:dims[1])
+    paste0("pep_", seq_len(dims[1]))
     } else { peptide_names }
 
   ## Get sample names. If no sample names are given but there are samples,
   ## assign names of "sample_colnumber"
   sample_names <- .getSampleNames(counts, logfc, prob, sampleInfo, .defaultNames[2])
   sample_names <- if(is.null(sample_names) & dims[2] != 0) {
-    paste0("sample_", 1:dims[2])
+    paste0("sample_", seq_len(dims[2]))
   } else { sample_names }
 
   ## Set missing assays to DataFrames with dimensions and names corresponding to
@@ -241,7 +241,8 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
 
   peptide_names <- list(rownames(counts), rownames(logfc),
                         rownames(prob), rownames(peptideInfo))
-  peptide_names <- unique(peptide_names[sapply(peptide_names, length) != 0])
+  non_missing_len <- vapply(peptide_names, length, numeric(1))
+  peptide_names <- unique(peptide_names[non_missing_len != 0])
 
   peptide_warning <- paste0("Peptide names are not identical across inputs. ",
                             "Using peptide names from ")
@@ -274,7 +275,8 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
 
   sample_names <- list(colnames(counts), colnames(logfc),
                        colnames(prob), rownames(sampleInfo))
-  sample_names <- unique(sample_names[sapply(sample_names, length) != 0])
+  non_missing_len <- vapply(sample_names, length, numeric(1))
+  sample_names <- unique(sample_names[non_missing_len != 0])
 
   sample_warning <- paste0("Sample names are not identical across inputs. ",
                            "Using sample names from ")
@@ -402,13 +404,13 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
   } else NULL
 }
 
-## 2a. counts cannot have negative entries
-## 2b. counts must be integer
+## 2. counts cannot have negative entries
 .checkCounts <- function(x){
   error <- character()
 
   if(all(dim(x) != 0)) {
-    counts_pos <- sapply(counts(x), function(x) x>= 0 | is.na(x))
+    counts_pos <- vapply(counts(x), function(col) col >= 0 | is.na(col),
+                         logical(nrow(x)))
     if(!all(counts_pos)) {
       msg <- "cannot have negative entries"
       error <- c(error, msg)
@@ -603,13 +605,13 @@ setReplaceMethod("assays", c("PhIPData", "list"), function(x, ..., value) {
     rownames(value) <- pep_names
     colnames(value) <- sample_names
 
-    value
+    S4Vectors::DataFrame(value)
   } else if(length(value) > 1) {
     lapply(value, function(assay){
       rownames(assay) <- pep_names
       colnames(assay) <- sample_names
 
-      assay
+      S4Vectors::DataFrame(assay)
     })
   } else value
 
@@ -620,9 +622,6 @@ setReplaceMethod("assays", c("PhIPData", "list"), function(x, ..., value) {
   if(length(error)){
     stop(error)
   }
-
-  # Check counts
-
 
   validObject(new_object)
   new_object

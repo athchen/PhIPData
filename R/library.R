@@ -18,6 +18,11 @@
 #' @param library a \code{matrix}, \code{data.frame}, or \linkS4class{DataFrame}
 #' with the peptide information for the specified library.
 #'
+#' @return \code{getLibraryPath} returns the path to the directory containing
+#' .rds files for each library. \code{getLibrary} returns a
+#' \linkS4class{DataFrame} corresponding to the peptide information for the
+#' specified library.
+#'
 #' @examples
 #' ## Get and set path to libraries folder
 #' getLibraryPath()

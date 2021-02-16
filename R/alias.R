@@ -5,7 +5,7 @@
 #' \code{PhIPData} objects by viral species.
 #'
 #' @details Aliases are saved to an rda file containing only a \code{data.frame}
-#' with two columnes: \code{alias} and \code{pattern}. The \code{alias} column
+#' with two columns: \code{alias} and \code{pattern}. The \code{alias} column
 #' contains the alias while the \code{pattern} column contains the corresponding
 #' regexpression of interest.
 #'
@@ -17,16 +17,24 @@
 #' package is loaded. It is recommended to use the functions \code{setAlias}
 #' and \code{deleteAlias} to edit the alias database rather than modify the
 #' .rda file itself. If an alias already exists in the database, \code{setAlias}
-#' replaces the matched pattern.
+#' replaces the matched pattern. If an alias does not exist in the database,
+#' \code{getAlias} returns \code{NA_character_}.
 #'
 #' @param path path to \code{alias.rda}
 #' @param virus character vector of the alias
 #' @param pattern character vector of regexpressions corresponding to the alias
 #'
+#' @return \code{getAliasPath()} returns the path to the alias database.
+#' \code{getAlias()} returns a vector of regexpressions corresponding to
+#' queried inputs. The returned vector is the same length as the input vector.
+#' Queries that do not exist in the database return \code{NA_character_}.
+#'
 #' @examples
 #' ## Get and set path to alias.rda
 #' getAliasPath()
-#' \dontrun{setAliasPath("examplepath/alias.rda")}
+#' \dontrun{
+#' setAliasPath("examplepath/alias.rda")
+#' }
 #'
 #' ## Edit and modify aliases in the database
 #' setAlias("test_virus", "test_pattern")
@@ -43,8 +51,8 @@
 #' ## Example of how to subset HIV using `getAlias`
 #' ## Often, it is useful to set the `ignore.case` of `grep`/`grepl` to TRUE.
 #' counts_dat <- matrix(1:10, nrow = 5)
-#' peptide_meta <- data.frame(species = c(rep("human immunodeficiency virus", 3),
-#'      rep("Epstein-Barr virus", 2)))
+#' peptide_meta <- data.frame(species = c(rep("Epstein-Barr virus", 2),
+#'     rep("human immunodeficiency virus", 3)))
 #'
 #' phip_obj <- PhIPData(counts = counts_dat, peptideInfo = peptide_meta)
 #' subset(phip_obj, grepl(getAlias("HIV"), species, ignore.case = TRUE))
@@ -82,9 +90,7 @@ alias_env <- new.env(parent = emptyenv())
 load(getAliasPath(), envir = alias_env)
 
 .getOneAlias <- function(virus){
-  if(!virus %in% alias_env$alias$alias){
-    stop("Virus does not exist in the alias database.")
-  } else {
+  if(!virus %in% alias_env$alias$alias){ NA_character_ } else {
     alias_env$alias$pattern[alias_env$alias$alias == virus]
   }
 }
@@ -92,7 +98,7 @@ load(getAliasPath(), envir = alias_env)
 #' @describeIn aliases return a regexpression corresponding to the alias.
 #' @export
 getAlias <- function(virus){
-  sapply(virus, .getOneAlias, USE.NAMES = FALSE)
+  vapply(virus, .getOneAlias, character(1), USE.NAMES = FALSE)
 }
 
 
@@ -113,11 +119,12 @@ setAlias <- function(virus, pattern){
   ##        changed
   new_viruses <- virus[!virus %in% current_alias$alias]
   exist_viruses <- setdiff(virus, new_viruses)
-  current_pattern <- sapply(exist_viruses, function(x) {
+  current_pattern <- vapply(exist_viruses, function(x) {
     pattern <- current_alias$pattern[current_alias$alias == x]
     if(length(pattern) == 0) NA else pattern
-  })
-  replace_viruses <- exist_viruses[current_pattern != pattern[virus == exist_viruses]]
+    }, character(1))
+  replace_viruses <- exist_viruses[current_pattern !=
+                                     pattern[virus == exist_viruses]]
   n_replace <- length(replace_viruses)
   if(n_replace > 0){
     cli::cli_alert_info("Replacing pattern{?s} for {n_replace} alias{?es}.")

@@ -26,6 +26,12 @@ deleteAlias(virus)
 
 \item{pattern}{character vector of regexpressions corresponding to the alias}
 }
+\value{
+\code{getAliasPath()} returns the path to the alias database.
+\code{getAlias()} returns a vector of regexpressions corresponding to
+queried inputs. The returned vector is the same length as the input vector.
+Queries that do not exist in the database return \code{NA_character_}.
+}
 \description{
 Rather than typing out full viruses names or repeating
 regexpressions, users can use aliases as a convenient tool to subset
@@ -33,7 +39,7 @@ regexpressions, users can use aliases as a convenient tool to subset
 }
 \details{
 Aliases are saved to an rda file containing only a \code{data.frame}
-with two columnes: \code{alias} and \code{pattern}. The \code{alias} column
+with two columns: \code{alias} and \code{pattern}. The \code{alias} column
 contains the alias while the \code{pattern} column contains the corresponding
 regexpression of interest.
 
@@ -45,7 +51,8 @@ Once an alias is added to the database, it can always be accessed once the
 package is loaded. It is recommended to use the functions \code{setAlias}
 and \code{deleteAlias} to edit the alias database rather than modify the
 .rda file itself. If an alias already exists in the database, \code{setAlias}
-replaces the matched pattern.
+replaces the matched pattern. If an alias does not exist in the database,
+\code{getAlias} returns \code{NA_character_}.
 }
 \section{Functions}{
 \itemize{

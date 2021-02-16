@@ -22,6 +22,5 @@ NULL
 #'
 #' @export
 librarySize <- function(object, withDimnames = TRUE){
-  libsize <- sapply(counts(object), sum)
-  if(withDimnames) libsize else unname(libsize)
+  libsize <- vapply(counts(object), sum, numeric(1), USE.NAMES = withDimnames)
 }

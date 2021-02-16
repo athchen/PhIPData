@@ -24,6 +24,12 @@ makeLibrary(library, name)
 \item{library}{a \code{matrix}, \code{data.frame}, or \linkS4class{DataFrame}
 with the peptide information for the specified library.}
 }
+\value{
+\code{getLibraryPath} returns the path to the directory containing
+.rds files for each library. \code{getLibrary} returns a
+\linkS4class{DataFrame} corresponding to the peptide information for the
+specified library.
+}
 \description{
 PhIP-Seq experiments often use identical peptide libraries
 different cohorts. These functions enable the user to conveniently reuse

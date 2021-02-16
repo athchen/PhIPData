@@ -64,7 +64,7 @@ knitr::include_graphics("extras/PhIPData.png")
 
 # Creating a `PhIPData` object
 
-```{r setup, warning = F, message = F}
+```{r setup, warning = FALSE, message = FALSE}
 library(dplyr)
 library(readr)
 ```
@@ -106,8 +106,8 @@ prob_dat <- matrix(rbeta(n_samples*n_peps, shape1 = 1, shape2 = 1),
 
 # Sample metadata -------------
 sample_meta <- data.frame(sample_name = paste0("sample", 1:n_samples),
-                          gender = sample(c("M", "F"), n_samples, T),
-                          group = sample(c("ctrl", "trt", "beads"), n_samples, T))
+                          gender = sample(c("M", "F"), n_samples, TRUE),
+                          group = sample(c("ctrl", "trt", "beads"), n_samples, TRUE))
 
 # Set row/column names -------------
 rownames(counts_dat) <- rownames(logfc_dat) <-
