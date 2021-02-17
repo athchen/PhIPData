@@ -67,3 +67,31 @@ replaces the matched pattern. If an alias does not exist in the database,
 \item \code{deleteAlias}: remove an alias from the database.
 }}
 
+\examples{
+## Get and set path to alias.rda
+getAliasPath()
+\dontrun{
+setAliasPath("examplepath/alias.rda")
+}
+
+## Edit and modify aliases in the database
+setAlias("test_virus", "test_pattern")
+getAlias("test_virus")
+setAlias("test_virus", "test_pattern2")
+getAlias("test_virus")
+deleteAlias("test_virus")
+
+## Edit and modify multiple aliases at once.
+setAlias(c("virus_1", "virus_2"), c("pattern_1", "pattern_2"))
+getAlias(c("virus_1", "virus_2"))
+deleteAlias(c("virus_1", "virus_2"))
+
+## Example of how to subset HIV using `getAlias`
+## Often, it is useful to set the `ignore.case` of `grep`/`grepl` to TRUE.
+counts_dat <- matrix(1:10, nrow = 5)
+peptide_meta <- data.frame(species = c(rep("Epstein-Barr virus", 2),
+    rep("human immunodeficiency virus", 3)))
+
+phip_obj <- PhIPData(counts = counts_dat, peptideInfo = peptide_meta)
+subset(phip_obj, grepl(getAlias("HIV"), species, ignore.case = TRUE))
+}

@@ -46,7 +46,7 @@
 #' ## Edit and modify multiple aliases at once.
 #' setAlias(c("virus_1", "virus_2"), c("pattern_1", "pattern_2"))
 #' getAlias(c("virus_1", "virus_2"))
-#' deleteAlias(c("virus_1", "virus_2))
+#' deleteAlias(c("virus_1", "virus_2"))
 #'
 #' ## Example of how to subset HIV using `getAlias`
 #' ## Often, it is useful to set the `ignore.case` of `grep`/`grepl` to TRUE.

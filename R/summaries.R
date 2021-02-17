@@ -22,5 +22,5 @@ NULL
 #'
 #' @export
 librarySize <- function(object, withDimnames = TRUE){
-  libsize <- vapply(counts(object), sum, numeric(1), USE.NAMES = withDimnames)
+  vapply(counts(object), sum, numeric(1), USE.NAMES = withDimnames)
 }
