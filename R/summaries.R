@@ -7,6 +7,7 @@ NULL
 #' assay.
 #'
 #' @param object \linkS4class{PhIPData} object
+#' @param ... arguments passed to \link{colSums}
 #' @param withDimnames logical; if true, the vector names are the sample names;
 #' otherwise the vector is unnamed.
 #'
@@ -21,6 +22,7 @@ NULL
 #' librarySize(phip_obj, withDimnames = FALSE)
 #'
 #' @export
-librarySize <- function(object, withDimnames = TRUE){
-  vapply(counts(object), sum, numeric(1), USE.NAMES = withDimnames)
+librarySize <- function(object, ..., withDimnames = TRUE){
+  sums <- colSums(counts(object,...))
+  if(withDimnames){ sums } else { unname(sums) }
 }

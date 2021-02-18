@@ -123,7 +123,7 @@ and \code{...} are further arguments passed to \code{\link{assay}} (for the gett
 Get or set a matrix of raw read counts
 }
 \item{\code{logfc(x, ...)}, \code{logfc(x, ...) <- value}:}{
-Get or set a matrix of log10 estimated fold changes (in comparison to beads-only samples)
+Get or set a matrix of log2 estimated fold changes (in comparison to beads-only samples)
 }
 \item{\code{prob(x, ...)}, \code{pob(x, ...) <- value}:}{
 Get or set a matrix of probabilities associated with whether

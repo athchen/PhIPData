@@ -4,10 +4,12 @@
 \alias{librarySize}
 \title{Calculate total read counts for each sample.}
 \usage{
-librarySize(object, withDimnames = TRUE)
+librarySize(object, ..., withDimnames = TRUE)
 }
 \arguments{
 \item{object}{\linkS4class{PhIPData} object}
+
+\item{...}{arguments passed to \link{colSums}}
 
 \item{withDimnames}{logical; if true, the vector names are the sample names;
 otherwise the vector is unnamed.}

@@ -153,9 +153,9 @@ test_that("getter functions return objects of the expected class", {
   phip_obj <- PhIPData(counts = counts, logfc = logfc, prob = prob,
                        sampleInfo = sampleInfo, peptideInfo = virscan_info)
 
-  expect_is(counts(phip_obj), "DataFrame")
-  expect_is(logfc(phip_obj), "DataFrame")
-  expect_is(prob(phip_obj), "DataFrame")
+  expect_is(counts(phip_obj), "matrix")
+  expect_is(logfc(phip_obj), "matrix")
+  expect_is(prob(phip_obj), "matrix")
   expect_is(peptideInfo(phip_obj), "GRanges")
   expect_is(sampleInfo(phip_obj), "DataFrame")
 })
@@ -179,21 +179,21 @@ test_that("setter functions change the object as desired", {
   assays(phip_obj) <- list(counts = replacement_matrix,
                            logfc = replacement_matrix,
                            prob = replacement_matrix)
-  expect_equal(unname(as.matrix(counts(phip_obj))), replacement_matrix)
-  expect_equal(unname(as.matrix(logfc(phip_obj))), replacement_matrix)
-  expect_equal(unname(as.matrix(prob(phip_obj))), replacement_matrix)
+  expect_equal(unname(counts(phip_obj)), replacement_matrix)
+  expect_equal(unname(logfc(phip_obj)), replacement_matrix)
+  expect_equal(unname(prob(phip_obj)), replacement_matrix)
 
   assay(phip_obj) <- counts
-  expect_equal(counts(phip_obj), S4Vectors::DataFrame(counts))
+  expect_equal(counts(phip_obj), counts)
   assay(phip_obj, 2) <- logfc
-  expect_equal(logfc(phip_obj), S4Vectors::DataFrame(logfc))
+  expect_equal(logfc(phip_obj), logfc)
   assay(phip_obj, "prob") <- prob
-  expect_equal(prob(phip_obj), S4Vectors::DataFrame(prob))
+  expect_equal(prob(phip_obj), prob)
 
   counts(phip_obj) <- logfc(phip_obj) <- prob(phip_obj) <- replacement_matrix
-  expect_equal(unname(as.matrix(counts(phip_obj))), replacement_matrix)
-  expect_equal(unname(as.matrix(logfc(phip_obj))), replacement_matrix)
-  expect_equal(unname(as.matrix(prob(phip_obj))), replacement_matrix)
+  expect_equal(unname(counts(phip_obj)), replacement_matrix)
+  expect_equal(unname(logfc(phip_obj)), replacement_matrix)
+  expect_equal(unname(prob(phip_obj)), replacement_matrix)
 
   # Check that invalid replacement generates warning
   expect_error(counts(phip_obj) <- matrix(-1L, nrow = n_peptides, ncol = n_samples),
@@ -232,7 +232,7 @@ test_that("assays can be added and removed", {
                       "in a PhIPData object. The following assays are ",
                       "missing: counts"))
   assay(phip_obj, "new_assay") <- replacement_matrix
-  expect_equal(unname(as.matrix(assay(phip_obj, "new_assay"))),
+  expect_equal(unname(assay(phip_obj, "new_assay")),
                replacement_matrix)
   assay(phip_obj, "new_assay") <- NULL
   expect_true(!"new_assay" %in% assayNames(phip_obj))

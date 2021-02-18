@@ -8,9 +8,9 @@
 \title{The PhIPData class}
 \usage{
 PhIPData(
-  counts = S4Vectors::DataFrame(),
-  logfc = S4Vectors::DataFrame(),
-  prob = S4Vectors::DataFrame(),
+  counts = matrix(nrow = 0, ncol = 0),
+  logfc = matrix(nrow = 0, ncol = 0),
+  prob = matrix(nrow = 0, ncol = 0),
   peptideInfo = S4Vectors::DataFrame(),
   sampleInfo = S4Vectors::DataFrame(),
   metadata = list(),
@@ -22,7 +22,7 @@ PhIPData(
 \code{\linkS4class{DataFrame}}of \strong{integer} read counts.}
 
 \item{logfc}{a \code{matrix}, \code{data.frame}, or
-\code{\linkS4class{DataFrame}} of log10 estimated fold changes.}
+\code{\linkS4class{DataFrame}} of log2 estimated fold changes.}
 
 \item{prob}{a \code{matrix}, \code{data.frame}, or
 \code{\linkS4class{DataFrame}} of probability values (p-values or
@@ -67,7 +67,7 @@ object contains at least three assays:
 
 \itemize{
     \item{\code{counts}:} a matrix of raw read counts,
-    \item{\code{logfc}:} a matrix of log10 estimated fold-change in
+    \item{\code{logfc}:} a matrix of log2 estimated fold-change in
          comparison to beads-only samples,
     \item{\code{prob}:} a matrix of probabilities associated with whether
          a sample has an enriched antibody response for a peptide.

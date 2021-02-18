@@ -13,7 +13,7 @@ NULL
 #'
 #' \itemize{
 #'     \item{\code{counts}:} a matrix of raw read counts,
-#'     \item{\code{logfc}:} a matrix of log10 estimated fold-change in
+#'     \item{\code{logfc}:} a matrix of log2 estimated fold-change in
 #'          comparison to beads-only samples,
 #'     \item{\code{prob}:} a matrix of probabilities associated with whether
 #'          a sample has an enriched antibody response for a peptide.
@@ -71,7 +71,7 @@ NULL
 #' @param counts a \code{matrix}, \code{data.frame}, or
 #'     \code{\linkS4class{DataFrame}}of \strong{integer} read counts.
 #' @param logfc a \code{matrix}, \code{data.frame}, or
-#'     \code{\linkS4class{DataFrame}} of log10 estimated fold changes.
+#'     \code{\linkS4class{DataFrame}} of log2 estimated fold changes.
 #' @param prob a \code{matrix}, \code{data.frame}, or
 #'     \code{\linkS4class{DataFrame}} of probability values (p-values or
 #'     posterior probabilities) for enrichment estimates.
@@ -133,9 +133,9 @@ NULL
 #' @importFrom GenomicRanges GRanges
 #' @importFrom IRanges IRanges
 #' @importFrom cli cli_alert_warning
-PhIPData <- function(counts = S4Vectors::DataFrame(),
-                     logfc = S4Vectors::DataFrame(),
-                     prob = S4Vectors::DataFrame(),
+PhIPData <- function(counts = matrix(nrow = 0, ncol = 0),
+                     logfc = matrix(nrow = 0, ncol = 0),
+                     prob = matrix(nrow = 0, ncol = 0),
                      peptideInfo = S4Vectors::DataFrame(),
                      sampleInfo = S4Vectors::DataFrame(),
                      metadata = list(),
@@ -317,11 +317,11 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
   rownames(empty_mat) <- peptide_names
   colnames(empty_mat) <- sample_names
   for(assay in assays_missing){
-    assay_list[[assay]] <- S4Vectors::DataFrame(empty_mat)
+    assay_list[[assay]] <- empty_mat
   }
 
-  ## Coerce all assays into DataFrames
-  assay_list <- lapply(assay_list, S4Vectors::DataFrame)
+  ## Coerce all assays into matrices
+  assay_list <- lapply(assay_list, as.matrix)
 
   ## Correct names
   for(assay in assays){
@@ -409,8 +409,7 @@ PhIPData <- function(counts = S4Vectors::DataFrame(),
   error <- character()
 
   if(all(dim(x) != 0)) {
-    counts_pos <- vapply(counts(x), function(col) col >= 0 | is.na(col),
-                         logical(nrow(x)))
+    counts_pos <- (counts(x) >= 0) | is.na(counts(x))
     if(!all(counts_pos)) {
       msg <- "cannot have negative entries"
       error <- c(error, msg)
@@ -491,7 +490,7 @@ S4Vectors::setValidity2("PhIPData", .validPhIPData)
 #' Get or set a matrix of raw read counts
 #' }
 #' \item{\code{logfc(x, ...)}, \code{logfc(x, ...) <- value}:}{
-#' Get or set a matrix of log10 estimated fold changes (in comparison to beads-only samples)
+#' Get or set a matrix of log2 estimated fold changes (in comparison to beads-only samples)
 #' }
 #' \item{\code{prob(x, ...)}, \code{pob(x, ...) <- value}:}{
 #' Get or set a matrix of probabilities associated with whether
@@ -605,13 +604,13 @@ setReplaceMethod("assays", c("PhIPData", "list"), function(x, ..., value) {
     rownames(value) <- pep_names
     colnames(value) <- sample_names
 
-    S4Vectors::DataFrame(value)
+    as.matrix(value)
   } else if(length(value) > 1) {
     lapply(value, function(assay){
       rownames(assay) <- pep_names
       colnames(assay) <- sample_names
 
-      S4Vectors::DataFrame(assay)
+      as.matrix(assay)
     })
   } else value
 
@@ -638,13 +637,13 @@ setReplaceMethod("assays", c("PhIPData", "SimpleList"), function(x, ..., value) 
     rownames(x) <- pep_names
     colnames(x) <- sample_names
 
-    value
+    as.matrix(value)
   } else if(length(value) > 1) {
     lapply(value, function(assay){
       rownames(assay) <- pep_names
       colnames(assay) <- sample_names
 
-      assay
+      as.matrix(assay)
     })
   } else value
 
@@ -867,9 +866,15 @@ setMethod("isEmpty", "PhIPData", function(x) {
 # DGEList to PhIPData
 setAs("DGEList", "PhIPData", function(from){
 
-  count_mat <- if(is.null(from[["counts"]])) { S4Vectors::DataFrame() } else { from[["counts"]] }
-  sample_info <- if(is.null(from[["samples"]])) { S4Vectors::DataFrame() } else { from[["samples"]] }
-  pep_info <- if(is.null(from[["genes"]])) { S4Vectors::DataFrame() } else { from[["genes"]] }
+  count_mat <- if(is.null(from[["counts"]])) {
+    matrix(nrow = 0, ncol = 0)
+  } else from[["counts"]]
+  sample_info <- if(is.null(from[["samples"]])) {
+    matrix(nrow = 0, ncol = 0)
+  } else from[["samples"]]
+
+  pep_info <- if(is.null(from[["genes"]])) { S4Vectors::DataFrame()
+  } else from[["genes"]]
 
   PhIPData(counts = count_mat, peptideInfo = pep_info, sampleInfo = sample_info)
 })

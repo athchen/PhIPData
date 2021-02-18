@@ -49,7 +49,7 @@ As reflected in the figure below, the structure of a `PhIPData` object is nearly
 Each object contains at least three assays of data. These assays are:
 
 * `counts`: matrix of raw read counts,
-* `logfc`: matrix of log10 estimated fold-changes (in comparison to negative control samples),
+* `logfc`: matrix of log2 estimated fold-changes (in comparison to negative control samples),
 * `prob`: matrix of probabilities (p-values or posterior probabilities) associated with whether a sample shows an enriched antibody response to the particular peptide. 
 
 Though `counts` typically contain integer values for the number of reads aligned to each peptide, `PhIPData` only requires that stored values are non-negative numeric values. Pseudocounts or non-integer count values can also be stored in the `counts` assay.
@@ -144,37 +144,38 @@ Assays store matrix-like data. For `PhIPData` objects, the assays `counts`, `log
 ```{r}
 assays(phip_obj)
 
-assays(phip_obj)$counts   # Returns the same as assays(phip_obj)[["counts"]]
+head(assays(phip_obj)$counts)   # Returns the same as assays(phip_obj)[["counts"]]
 ```
 
-While `assays(phip_obj)` returns a list of all assays in the `PhIPData` object, `assay(phip_obj, i)` returns a `DataFrame` of the specified assay. If `i` is missing, `assay(phip_obj)` defaults to the first assay (`counts`). `i` can be a character specifying the assay name or a numeric index of the assay.
+While `assays(phip_obj)` returns a list of all assays in the `PhIPData` object, `assay(phip_obj, i)` returns a `matrix` of the specified assay. If `i` is missing, `assay(phip_obj)` defaults to the first assay (`counts`). `i` can be a character specifying the assay name or a numeric index of the assay.
 
 ```{r}
-assay(phip_obj, "logfc")   # Returns the same as assay(phip_obj, 2)
+head(assay(phip_obj, "logfc"))   # Returns the same as assay(phip_obj, 2)
 ```
 
 Since all `PhIPData` objects must contain the `counts`, `logfc`, and `prob` assays, we have defined three homonyous function to conveniently access and modify these assays.
 
 ```{r}
-counts(phip_obj)
-logfc(phip_obj)
-prob(phip_obj)
+head(counts(phip_obj))
+head(logfc(phip_obj))
+head(prob(phip_obj))
 ```
 
-After a `PhIPData` object has been created, data for new and existing assays can be set using `<-`. Dimension names of the replacement assays are automatically corrected to be identical to the object names. Replacement assays must also be on the same dimension of the existing object. 
+After a `PhIPData` object has been created, data for new and existing assays can be set using `<-`. Dimension names of the replacement assays are automatically corrected to be identical to the object names. As we expect assays to contain homogenous data, replacement assays are coerced into matrices. Replacement assays must also be on the same dimension of the existing object.
+
 
 ```{r, error = T}
 replacement_dat <- matrix(1, nrow = n_peps, ncol = n_samples)
 
 # Replace the counts matrix -------------
-counts(phip_obj)
+head(counts(phip_obj))
 counts(phip_obj) <- replacement_dat
-counts(phip_obj)
+head(counts(phip_obj))
 
 # Add a new assay -----------
-assay(phip_obj, "new_assay")
+head(assay(phip_obj, "new_assay"))
 assay(phip_obj, "new_assay") <- replacement_dat
-assay(phip_obj, "new_assay")
+head(assay(phip_obj, "new_assay"))
 
 # Returns and error because `counts`, `logfc`, and `prob` must be in the 
 # assays of a PhIPData object
@@ -228,7 +229,7 @@ phip_obj[1:10, 1:2]
 As described in the [Sample metadata](#sample-metadata) section, `$` operates on the sample metadata column names, so we can also use `$` to select samples of a particular subgroups. 
 
 ```{r}
-phip_obj[, phip_obj$group == "trt"]
+phip_obj[, phip_obj$group == "beads"]
 ```
 
 In addition to subsetting by row indices, `PhIPData` supports subsetting rows using peptide metadata information. `subset(phip_obj, row_condition, column_condition)` returns a `PhIPData` object with rows where the specified condition holds. 
