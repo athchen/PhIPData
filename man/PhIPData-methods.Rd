@@ -117,13 +117,15 @@ the class also includes coercion methods to and from \linkS4class{DGEList}s.
 
 In the following code snippets, \code{x} is a \linkS4class{PhIPData} object,
 \code{value} is a matrix-like object with the same dimensions as \code{x},
-and \code{...} are further arguments passed to \code{\link{assay}} (for the getter) or \code{\link{assay<-}} (for the setter).
+and \code{...} are further arguments passed to \code{\link{assay}}
+(for the getter) or \code{\link{assay<-}} (for the setter).
 \describe{
 \item{\code{counts(x, ...)}, \code{counts(x, ...) <- value}:}{
 Get or set a matrix of raw read counts
 }
 \item{\code{logfc(x, ...)}, \code{logfc(x, ...) <- value}:}{
-Get or set a matrix of log2 estimated fold changes (in comparison to beads-only samples)
+Get or set a matrix of log2 estimated fold changes (in comparison to
+beads-only samples)
 }
 \item{\code{prob(x, ...)}, \code{pob(x, ...) <- value}:}{
 Get or set a matrix of probabilities associated with whether

@@ -15,8 +15,9 @@
 #'
 #' @param path path to a folder containing a .rds files for each library
 #' @param name name of the library
-#' @param library a \code{matrix}, \code{data.frame}, or \linkS4class{DataFrame}
-#' with the peptide information for the specified library.
+#' @param library a \code{matrix}, \code{data.frame}, or
+#'     \linkS4class{DataFrame} with the peptide information for the
+#'     specified library.
 #'
 #' @return \code{getLibraryPath} returns the path to the directory containing
 #' .rds files for each library. \code{getLibrary} returns a
@@ -29,9 +30,9 @@
 #' \dontrun{setLibraryPath("examplepath/")}
 #'
 #' ## Create a new library
-#' peptide_meta <- data.frame(species = c(rep("human immunodeficiency virus", 3),
+#' pep_meta <- data.frame(species = c(rep("human immunodeficiency virus", 3),
 #'      rep("Epstein-Barr virus", 2)))
-#' makeLibrary(peptide_meta, "new_library")
+#' makeLibrary(pep_meta, "new_library")
 #'
 #' ## Use new library
 #' counts_dat <- matrix(1:10, nrow = 5)
@@ -45,7 +46,8 @@
 #' @include PhIPData-class.R
 NULL
 
-#' @describeIn peptideLibraries return the path to a folder containing the libraries.
+#' @describeIn peptideLibraries return the path to a folder containing the
+#'     libraries.
 #' @export
 getLibraryPath <- function(){
   path <- Sys.getenv("PHIP_LIBRARY_PATH", "")
@@ -58,7 +60,8 @@ getLibraryPath <- function(){
 
 }
 
-#' @describeIn peptideLibraries set the path to a folder containing the libraries.
+#' @describeIn peptideLibraries set the path to a folder containing the
+#'     libraries.
 #' @export
 setLibraryPath <- function(path){
 
@@ -79,8 +82,8 @@ getLibrary <- function(name){
   readRDS(path)
 }
 
-#' @describeIn peptideLibraries create and store a \linkS4class{DataFrame} with the
-#' specified peptide information.
+#' @describeIn peptideLibraries create and store a \linkS4class{DataFrame} with
+#' the specified peptide information.
 #'
 #' @export
 #' @importFrom utils menu
@@ -89,7 +92,8 @@ makeLibrary <- function(library, name){
 
   write <- if(file.exists(path)){
     menu(c("Yes", "No"),
-         title = "The library files already exists. Do you want to overwrite the file?")
+         title = paste0("The library files already exists. ",
+                        "Do you want to overwrite the file?"))
   } else { 1 }
   if(write == 1) { saveRDS(library, file = path) }
 }

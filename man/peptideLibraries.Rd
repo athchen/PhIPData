@@ -21,8 +21,9 @@ makeLibrary(library, name)
 
 \item{name}{name of the library}
 
-\item{library}{a \code{matrix}, \code{data.frame}, or \linkS4class{DataFrame}
-with the peptide information for the specified library.}
+\item{library}{a \code{matrix}, \code{data.frame}, or
+\linkS4class{DataFrame} with the peptide information for the
+specified library.}
 }
 \value{
 \code{getLibraryPath} returns the path to the directory containing
@@ -47,15 +48,17 @@ save a new library.
 }
 \section{Functions}{
 \itemize{
-\item \code{getLibraryPath}: return the path to a folder containing the libraries.
+\item \code{getLibraryPath}: return the path to a folder containing the
+libraries.
 
-\item \code{setLibraryPath}: set the path to a folder containing the libraries.
+\item \code{setLibraryPath}: set the path to a folder containing the
+libraries.
 
 \item \code{getLibrary}: return a \linkS4class{DataFrame} with the
 peptide information corresponding to the library.
 
-\item \code{makeLibrary}: create and store a \linkS4class{DataFrame} with the
-specified peptide information.
+\item \code{makeLibrary}: create and store a \linkS4class{DataFrame} with
+the specified peptide information.
 }}
 
 \examples{
@@ -64,9 +67,9 @@ getLibraryPath()
 \dontrun{setLibraryPath("examplepath/")}
 
 ## Create a new library
-peptide_meta <- data.frame(species = c(rep("human immunodeficiency virus", 3),
+pep_meta <- data.frame(species = c(rep("human immunodeficiency virus", 3),
      rep("Epstein-Barr virus", 2)))
-makeLibrary(peptide_meta, "new_library")
+makeLibrary(pep_meta, "new_library")
 
 ## Use new library
 counts_dat <- matrix(1:10, nrow = 5)

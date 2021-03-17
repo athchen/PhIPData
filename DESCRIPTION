@@ -1,7 +1,7 @@
 Package: PhIPData
 Type: Package
 Title: Container for PhIP-Seq Experiments
-Version: 0.99.1
+Version: 0.99.3
 Authors@R: c(person("Athena", "Chen", email = "achen70@jhu.edu", 
     role = c("aut", "cre"), comment = c(ORCID = "0000-0001-6900-2264")),
     person("Rob", "Scharpf", email = "rscharpf@jhu.edu", 
@@ -9,14 +9,15 @@ Authors@R: c(person("Athena", "Chen", email = "achen70@jhu.edu",
     person("Ingo", "Ruczinski", email = "ingo@jhu.edu", 
     role = c("aut")))
 Description: PhIPData defines an S4 class for phage-immunoprecipitation 
-    sequencing (PhIP-seq) experiments. Buliding upon the RangedSummarizedExperiment
-    class, PhIPData enables users to coordinate metadata with experimental data
-    in analyses. Additionally, PhIPData provides specialized methods to subset and identify 
-    beads-only samples, subset objects using virus aliases, and use existing 
-    peptide libraries to populate object parameters. 
+    sequencing (PhIP-seq) experiments. Buliding upon the 
+    RangedSummarizedExperiment class, PhIPData enables users to coordinate 
+    metadata with experimental data in analyses. Additionally, PhIPData 
+    provides specialized methods to subset and identify beads-only samples, 
+    subset objects using virus aliases, and use existing peptide libraries to 
+    populate object parameters. 
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 Depends: 
     R (>= 4.1.0), 
     SummarizedExperiment (>= 1.3.81)
@@ -37,7 +38,7 @@ Suggests:
     covr, 
     dplyr,
     readr
-biocViews: Infrastructure, DataRepresentation
+biocViews: Infrastructure, DataRepresentation, Sequencing, Coverage
 BugReports: https://github.com/athchen/PhIPData/issues
 Collate: 
     'defineBeads.R'

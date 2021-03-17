@@ -25,18 +25,22 @@ test_that("libraries can be created and used to make valid PhIPData objects.", {
   virscan_info <- readr::read_tsv(virscan_file,
                                   col_types = readr::cols(
                                     pep_id = readr::col_character(),
-                                    pro_id = readr::col_character(),
-                                    pos_start = readr::col_double(),
-                                    pos_end = readr::col_double(),
-                                    UniProt_acc = readr::col_character(),
                                     pep_dna = readr::col_character(),
                                     pep_aa = readr::col_character(),
+                                    pep_pos = readr::col_character(),
                                     pro_len = readr::col_double(),
-                                    taxon_id = readr::col_double(),
+                                    uniprot_acc = readr::col_character(),
+                                    refseq = readr::col_character(),
                                     species = readr::col_character(),
-                                    genus = readr::col_character(),
-                                    product = readr::col_character()
-                                  )) %>%
+                                    interspecies_specific = readr::col_character(),
+                                    product = readr::col_character(),
+                                    description = readr::col_character(),
+                                    go = readr::col_character(),
+                                    kegg = readr::col_character(),
+                                    pfam = readr::col_character(),
+                                    embl = readr::col_character(),
+                                    interpro = readr::col_character(),
+                                    pep_name = readr::col_character())) %>%
     as.data.frame()
 
   makeLibrary(virscan_info, "virscan")
