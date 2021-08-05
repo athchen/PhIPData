@@ -15,7 +15,7 @@ librarySize(object, ..., withDimnames = TRUE)
 otherwise the vector is unnamed.}
 }
 \value{
-a named numeric vector. The length of the vector is equal to the
+a (named) numeric vector. The length of the vector is equal to the
 number of samples.
 }
 \description{

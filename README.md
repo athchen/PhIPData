@@ -5,9 +5,9 @@
 
 <!-- badges: start -->
 
-[![R build
-status](https://github.com/athchen/PhIPData/workflows/R-CMD-check/badge.svg)](https://github.com/athchen/PhIPData/actions)
-<!-- [![BioC status](http://www.bioconductor.org/shields/build/release/bioc/PhIPData.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/PhIPData) -->
+[![R-CMD-check](https://github.com/athchen/PhIPData/workflows/R-CMD-check/badge.svg)](https://github.com/athchen/PhIPData/actions)
+[![BioC
+status](http://www.bioconductor.org/shields/build/release/bioc/PhIPData.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/PhIPData)
 [![Codecov test
 coverage](https://codecov.io/gh/athchen/PhIPData/branch/main/graph/badge.svg)](https://codecov.io/gh/athchen/PhIPData?branch=main)
 <!-- badges: end -->
@@ -54,10 +54,10 @@ is nearly identical to the structure of a
 
 Each object contains at least three assays of data. These assays are:
 
-  - `counts`: matrix of raw read counts,
-  - `logfc`: matrix of log10 estimated fold-changes (in comparison to
+-   `counts`: matrix of raw read counts,
+-   `logfc`: matrix of log10 estimated fold-changes (in comparison to
     negative control samples),
-  - `prob`: matrix of probabilities (p-values or posterior
+-   `prob`: matrix of probabilities (p-values or posterior
     probabilities) associated with whether a sample shows an enriched
     antibody response to the particular peptide.
 
@@ -74,15 +74,12 @@ dates, etc. are stored in a list-like component named `metadata`.
 <div class="figure">
 
 <img src="vignettes/extras/PhIPData.png" alt="Schematic of a PhIPData object. Commands used to access each component of the object are listed underneath its visual representation. Code in black indicates functions specific to `PhIPData` objects while functions in red extend `SummarizedExperiment` functions. Here, `pd` is a generic `PhIPData` object." width="\maxwidth" />
-
 <p class="caption">
-
 Schematic of a PhIPData object. Commands used to access each component
 of the object are listed underneath its visual representation. Code in
 black indicates functions specific to `PhIPData` objects while functions
 in red extend `SummarizedExperiment` functions. Here, `pd` is a generic
 `PhIPData` object.
-
 </p>
 
 </div>

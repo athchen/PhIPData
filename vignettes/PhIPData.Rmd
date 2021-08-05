@@ -254,6 +254,12 @@ To assess the quality of the data, we are often interested in the number of read
 librarySize(phip_obj)
 ```
 
+The proportion of sample reads pulled by each peptide can also be obtained via `propReads()`. Like `librarySize()`, names can also be removed by setting `withDimnames` to `FALSE`. 
+
+```{r}
+head(propReads(phip_obj))
+```
+
 ## Using template libraries
 
 Rather than re-importing peptide annotations, `PhIPData` allows the user to create and reuse existing libraries. By default, libraries are stored in the `libraries` folder of the `PhIPData` package. The library path can be set using `setLibraryPath(new_path)`. Once set, the new path is stored in the `PHIP_LIBRARY_PATH` `R` environment variable. The current library path can be viewed with `getLibraryPath()`.  
