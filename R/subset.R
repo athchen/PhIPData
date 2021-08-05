@@ -11,8 +11,7 @@ NULL
 #' @examples
 #' example("PhIPData")
 #' subsetBeads(phip_obj)
-#'
 #' @export
-subsetBeads <- function(object){
-  object[, object$group == getBeadsName()]
+subsetBeads <- function(object) {
+    object[, object$group == getBeadsName()]
 }

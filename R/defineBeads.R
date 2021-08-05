@@ -14,7 +14,9 @@
 #' getBeadsName()
 #'
 #' ## Not run since it changes defaults/user settings
-#' \dontrun{setBeadsName("beads-only")}
+#' \dontrun{
+#' setBeadsName("beads-only")
+#' }
 #'
 #' @name defineBeads
 NULL
@@ -24,10 +26,14 @@ NULL
 #'
 #' @return a string indicating how beads-only samples are encoded.
 #' @export
-getBeadsName <- function(){
-  beads_name <- Sys.getenv("BEADS_NAME", "")
+getBeadsName <- function() {
+    beads_name <- Sys.getenv("BEADS_NAME", "")
 
-  if(beads_name == ""){ "beads" } else { beads_name }
+    if (beads_name == "") {
+        "beads"
+    } else {
+        beads_name
+    }
 }
 
 #' @describeIn defineBeads function to set the string that indicates which
@@ -37,21 +43,25 @@ getBeadsName <- function(){
 #' @param name a string indicating how beads-only samples are encoded.
 #' @export
 #' @importFrom cli cli_alert_warning
-setBeadsName <- function(name){
+setBeadsName <- function(name) {
+    if (length(name) > 1) {
+        cli::cli_alert_warning(paste0(
+            "Input has length larger than one. ",
+            "Using only the first element."
+        ))
+    }
+    if (typeof(name) != "character") {
+        cli::cli_alert_warning(paste0(
+            "Input is of type ", typeof(name), ". ",
+            "Coercing to character."
+        ))
+    }
 
-  if(length(name) > 1){
-    cli::cli_alert_warning(paste0("Input has length larger than one. ",
-                             "Using only the first element."))}
-  if(typeof(name) != "character"){
-    cli::cli_alert_warning(paste0("Input is of type ", typeof(name), ". ",
-                             "Coercing to character."))
-  }
+    name <- as.character(name[1])
 
-  name <- as.character(name[1])
-
-  if(is.na(name)){
-    stop("Beads cannot be specified via NA.")
-  } else {
-    Sys.setenv(BEADS_NAME = name)
-  }
+    if (is.na(name)) {
+        stop("Beads cannot be specified via NA.")
+    } else {
+        Sys.setenv(BEADS_NAME = name)
+    }
 }

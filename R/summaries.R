@@ -20,11 +20,14 @@ NULL
 #'
 #' ## Return an unnamed vector
 #' librarySize(phip_obj, withDimnames = FALSE)
-#'
 #' @export
-librarySize <- function(object, ..., withDimnames = TRUE){
-  sums <- colSums(counts(object,...))
-  if(withDimnames){ sums } else { unname(sums) }
+librarySize <- function(object, ..., withDimnames = TRUE) {
+    sums <- colSums(counts(object, ...))
+    if (withDimnames) {
+        sums
+    } else {
+        unname(sums)
+    }
 }
 
 #' Proportion of sample reads
@@ -45,12 +48,15 @@ librarySize <- function(object, ..., withDimnames = TRUE){
 #'
 #' ## Return an unnamed matrix
 #' propReads(phip_obj, withDimnames = FALSE)
-#'
 #' @export
-propReads <- function(object, withDimnames = TRUE){
+propReads <- function(object, withDimnames = TRUE) {
     n <- librarySize(object, withDimnames = FALSE)
     n_matrix <- matrix(rep(n, nrow(object)), nrow = nrow(object), byrow = TRUE)
     counts_matrix <- as.matrix(PhIPData::counts(object))
-    prop_matrix <- counts_matrix/n_matrix
-    if(withDimnames){ prop_matrix } else { unname(prop_matrix) }
+    prop_matrix <- counts_matrix / n_matrix
+    if (withDimnames) {
+        prop_matrix
+    } else {
+        unname(prop_matrix)
+    }
 }
