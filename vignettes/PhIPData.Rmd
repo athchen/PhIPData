@@ -317,14 +317,17 @@ Alias-pattern combinations are case senstive, so an entry with key "hiv" would d
 
 ## Coercion from `PhIPData` to other containers
 
-As packages for identifying differential experession are also commonly used in analyzing PhIP-seq data, the `PhIPData` package supports coercion from `PhIPData` objects to `Lists`, `lists`, and `DGELists`. The function `as(phip_obj, "object_type")` converts a `PhIPData` object to a object of `object type`. 
+As packages for identifying differential experession are also commonly used in analyzing PhIP-seq data, the `PhIPData` package supports coercion from `PhIPData` objects to `Lists`, `lists`, `DataFrame`, and `DGELists`. The function `as(phip_obj, "object_type")` converts a `PhIPData` object to a object of `object type`. 
 
 For `DGELists`, the `group` slot is automatically populated with the `group` column in the sample metadata, if such a column exists. 
 
 ```{r}
 # PhIPData to DGEList
 as(phip_obj, "DGEList")
+as(phip_obj, "DataFrame")
 ```
+
+While `PhIPData` objects can be roughly constructed from `Lists`, `lists`, and `DGELists`, the coercion functions only construct a bare bones `PhIPData` object (with only `counts`, `logfc`, and `prob` assays and sample and peptide information). Any additional list/object components may be discarded. 
 
 # `sessionInfo()`
 

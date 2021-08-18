@@ -1095,3 +1095,27 @@ setAs("List", "PhIPData", function(from) {
         metadata = from[["metadata"]]
     )
 })
+
+# PhIPData to DataFrame
+setAs("PhIPData", "DataFrame", function(from) {
+  if (length(metadata(from)) != 0) {
+    cli::cli_alert_warning("Metadata will be lost during coercion.")
+  }
+  n_samples <- ncol(from)
+  n_peps <- nrow(from)
+
+  ## Tidy assays
+  assay_df <- DataFrame(lapply(assays(from), as.vector))
+
+  ## Tidy sample_info
+  sample_df <- rep(cbind(sample = colnames(from), sampleInfo(from)),
+                   each = n_peps)
+  ## Tidy peptide_info
+  peptide_df <- rep(cbind(DataFrame(peptide = rownames(from),
+                                    pos_start = start(peptideInfo(from)),
+                                    pos_end = end(peptideInfo(from))),
+                          mcols(peptideInfo(from))),
+                    times = n_samples)
+
+  cbind(sample_df, peptide_df, assay_df)
+})

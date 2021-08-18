@@ -6,3 +6,5 @@
 
 * Added `propReads()` function to calculate the proportion of sample reads 
 pulled by each peptide. 
+* Added coercion function to convert a `PhIPData` object to a `DataFrame` (and
+consequently also `data.frames` and `tibbles`). 
