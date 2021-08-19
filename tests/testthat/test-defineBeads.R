@@ -11,5 +11,5 @@ test_that("varying strings can be used to indicate beads-only samples", {
     expect_error(setBeadsName(NA), "Beads cannot be specified via NA.")
 
     # Clean environment
-    Sys.unsetenv("BEADS_NAME")
+    setBeadsName("beads")
 })

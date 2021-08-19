@@ -85,6 +85,6 @@ test_that("libraries can be created and used to make valid PhIPData objects.", {
     )
 
     # clean-up test space
-    Sys.unsetenv("PHIP_LIBRARY_PATH")
+    setLibraryPath(system.file(package = "PhIPData", "libraries"))
     file.remove(paste0(extdata_loc, "/virscan.rds"))
 })

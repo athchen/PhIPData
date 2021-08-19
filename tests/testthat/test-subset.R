@@ -1,6 +1,6 @@
 context("Check PhIPData subsetting wrappers")
 
-source("setup.R")
+# source("setup.R")
 
 test_that("beads-only subsetting works", {
     # empty case

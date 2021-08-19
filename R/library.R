@@ -55,13 +55,7 @@ NULL
 #'     libraries.
 #' @export
 getLibraryPath <- function() {
-    path <- Sys.getenv("PHIP_LIBRARY_PATH", "")
-
-    if (path == "") {
-        system.file(package = "PhIPData", "libraries")
-    } else {
-        path
-    }
+    get("PHIP_LIBRARY_PATH", envir = pkg_env)
 }
 
 #' @describeIn peptideLibraries set the path to a folder containing the
@@ -71,7 +65,12 @@ setLibraryPath <- function(path) {
     if (!is.character(path) | !dir.exists(path)) {
         stop("Invalid specified path.")
     } else {
-        Sys.setenv(PHIP_LIBRARY_PATH = normalizePath(path))
+        assign("PHIP_LIBRARY_PATH", normalizePath(path), envir = pkg_env)
+        save(
+            list = c("BEADS_NAME", "ALIAS_PATH", "PHIP_LIBRARY_PATH"),
+            envir = pkg_env,
+            file = system.file(package = "PhIPData", "extdata/defaults.rda")
+        )
     }
 }
 

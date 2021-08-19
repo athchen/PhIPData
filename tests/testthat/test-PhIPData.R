@@ -1,6 +1,6 @@
 context("Base PhIPData API functions work as expected.")
 
-source("setup.R")
+# source("setup.R")
 
 # Test missing params ----------------------------------------
 test_that("valid PhIPData objects are created when there are missing inputs.", {

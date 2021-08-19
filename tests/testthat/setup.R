@@ -64,3 +64,8 @@ phip_obj <- PhIPData(
     counts = counts, logfc = logfc, prob = prob,
     sampleInfo = sampleInfo, peptideInfo = virscan_info
 )
+
+withr::defer(
+    unlink(system.file(package = "PhIPData", "extdata/defaults.rda")),
+    teardown_env()
+)

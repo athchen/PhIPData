@@ -66,13 +66,7 @@ NULL
 #' @describeIn aliases return the path to the .rda file of aliases.
 #' @export
 getAliasPath <- function() {
-    path <- Sys.getenv("ALIAS_PATH", "")
-
-    if (path == "") {
-        system.file(package = "PhIPData", "extdata/alias.rda")
-    } else {
-        path
-    }
+    get("ALIAS_PATH", envir = pkg_env)
 }
 
 #' @describeIn aliases set the path to the .rda file of aliases.
@@ -83,19 +77,20 @@ setAliasPath <- function(path) {
     } else if (!grepl("(rda|RData)", path)) {
         stop("Invalid file type.")
     } else {
-        Sys.setenv(ALIAS_PATH = path)
+        assign("ALIAS_PATH", path, envir = pkg_env)
+        save(
+            list = c("BEADS_NAME", "ALIAS_PATH", "PHIP_LIBRARY_PATH"),
+            envir = pkg_env,
+            file = system.file(package = "PhIPData", "extdata/defaults.rda")
+        )
     }
 }
 
-globalVariables("alias")
-alias_env <- new.env(parent = emptyenv())
-load(getAliasPath(), envir = alias_env)
-
 .getOneAlias <- function(virus) {
-    if (!virus %in% alias_env$alias$alias) {
+    if (!virus %in% get("alias", envir = pkg_env)$alias) {
         NA_character_
     } else {
-        alias_env$alias$pattern[alias_env$alias$alias == virus]
+        get("alias", pkg_env)$pattern[get("alias", pkg_env)$alias == virus]
     }
 }
 
@@ -113,7 +108,8 @@ setAlias <- function(virus, pattern) {
         stop("Input vector lengths are unequal.")
     }
 
-    current_alias <- alias_env$alias
+    ## Create temporary copy for convenience
+    current_alias <- get("alias", envir = pkg_env)
 
     ## Look at whether any viruses need to be added or changed
     ##    new_viruses: viruses to be added
@@ -152,29 +148,27 @@ setAlias <- function(virus, pattern) {
         }
 
         ## Change environment
-        alias_env$alias <- new_alias
+        assign("alias", new_alias, envir = pkg_env)
 
         ## Save to where the environment is loaded
-        alias_env$alias_loc <- getAliasPath()
         save(alias,
-            envir = alias_env,
-            file = alias_env$alias_loc
+            envir = pkg_env,
+            file = getAliasPath()
         )
     }
 }
 
 .deleteOneAlias <- function(virus) {
-    if (!virus %in% alias_env$alias$alias) {
+    if (!virus %in% get("alias", envir = pkg_env)$alias) {
         stop("Virus does not exist in the alias database.")
     } else {
-        virus_index <- which(alias_env$alias$alias == virus)
-        alias_env$alias <- alias_env$alias[-virus_index, ]
+        virus_index <- which(get("alias", pkg_env)$alias == virus)
+        assign("alias", pkg_env$alias[-virus_index, ], envir = pkg_env)
     }
 
-    alias_env$alias_loc <- getAliasPath()
     save(alias,
-        envir = alias_env,
-        file = alias_env$alias_loc
+        envir = pkg_env,
+        file = getAliasPath()
     )
 }
 

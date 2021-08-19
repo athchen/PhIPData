@@ -911,10 +911,11 @@ setGeneric("peptideInfo<-", function(object, value) {
 setReplaceMethod("peptideInfo", "PhIPData", function(object, value) {
     # check # of peptides match with assays
     if (nrow(value) != nrow(counts(object))) {
-        stop(paste0(
+        msg <- paste0(
             "The number of peptides in the annotation differ from ",
             "the number of peptides in `counts`."
-        ))
+        )
+        stop(msg)
     }
 
     # get peptide names and sample names from existing x
@@ -958,10 +959,11 @@ setGeneric("sampleInfo<-", function(object, ..., value) {
 setReplaceMethod("sampleInfo", "PhIPData", function(object, value) {
     # check # of samples match with assays
     if (nrow(value) != ncol(counts(object))) {
-        stop(paste0(
+        msg <- paste0(
             "The number of samples in the annotation differ from ",
             "the number of samples in `counts`."
-        ))
+        )
+        stop(msg)
     }
 
     # get peptide names and sample names from existing object
@@ -1098,24 +1100,30 @@ setAs("List", "PhIPData", function(from) {
 
 # PhIPData to DataFrame
 setAs("PhIPData", "DataFrame", function(from) {
-  if (length(metadata(from)) != 0) {
-    cli::cli_alert_warning("Metadata will be lost during coercion.")
-  }
-  n_samples <- ncol(from)
-  n_peps <- nrow(from)
+    if (length(metadata(from)) != 0) {
+        cli::cli_alert_warning("Metadata will be lost during coercion.")
+    }
+    n_samples <- ncol(from)
+    n_peps <- nrow(from)
 
-  ## Tidy assays
-  assay_df <- DataFrame(lapply(assays(from), as.vector))
+    ## Tidy assays
+    assay_df <- DataFrame(lapply(assays(from), as.vector))
 
-  ## Tidy sample_info
-  sample_df <- rep(cbind(sample = colnames(from), sampleInfo(from)),
-                   each = n_peps)
-  ## Tidy peptide_info
-  peptide_df <- rep(cbind(DataFrame(peptide = rownames(from),
-                                    pos_start = start(peptideInfo(from)),
-                                    pos_end = end(peptideInfo(from))),
-                          mcols(peptideInfo(from))),
-                    times = n_samples)
+    ## Tidy sample_info
+    sample_df <- rep(cbind(sample = colnames(from), sampleInfo(from)),
+        each = n_peps
+    )
+    ## Tidy peptide_info
+    peptide_df <- rep(cbind(
+        DataFrame(
+            peptide = rownames(from),
+            pos_start = start(peptideInfo(from)),
+            pos_end = end(peptideInfo(from))
+        ),
+        mcols(peptideInfo(from))
+    ),
+    times = n_samples
+    )
 
-  cbind(sample_df, peptide_df, assay_df)
+    cbind(sample_df, peptide_df, assay_df)
 })

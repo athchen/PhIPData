@@ -17,7 +17,6 @@ test_that("the alias database can be accessed and modified", {
 
     alias_path <- system.file(package = "PhIPData", "extdata/alias.rda")
     setAliasPath(alias_path)
-    expect_equal(Sys.getenv("ALIAS_PATH"), alias_path)
     expect_equal(getAliasPath(), alias_path)
 
     # check setter when virus does not exist
@@ -37,7 +36,7 @@ test_that("the alias database can be accessed and modified", {
     )
 
     # clean-up test space
-    Sys.unsetenv("ALIAS_PATH")
+    setAliasPath(system.file(package = "PhIPData", "extdata/alias.rda"))
 })
 
 test_that("Alias functions can be applied to vectors", {
