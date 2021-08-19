@@ -42,3 +42,6 @@ rsconnect/
 docs
 .Rproj.user
 inst/doc
+
+# PhIPData specific files to force users to build defaults.rda
+inst/extdata/defaults.rda
