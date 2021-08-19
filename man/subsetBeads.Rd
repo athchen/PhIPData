@@ -18,5 +18,4 @@ Function to subset PhIP-seq data for beads-only samples.
 \examples{
 example("PhIPData")
 subsetBeads(phip_obj)
-
 }

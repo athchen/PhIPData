@@ -121,25 +121,32 @@ counts_dat <- matrix(sample(1:1e6, 25, replace = TRUE), nrow = 5)
 logfc_dat <- matrix(rnorm(25, 0, 10), nrow = 5)
 prob_dat <- matrix(rbeta(25, 1, 1), nrow = 5)
 
-peptide_meta <- data.frame(pos_start = 1:5,
-      pos_end = 6:10,
-      species = c(rep("HIV", 3), rep("EBV", 2)))
-sample_meta <- data.frame(gender = sample(c("M", "F"), 5, TRUE),
-     group = sample(c("ctrl", "trt", "beads"), 5, TRUE))
-exp_meta<- list(date_run = as.Date("2021/01/20"),
-      reads_per_sample = colSums(counts_dat))
+peptide_meta <- data.frame(
+    pos_start = 1:5,
+    pos_end = 6:10,
+    species = c(rep("HIV", 3), rep("EBV", 2))
+)
+sample_meta <- data.frame(
+    gender = sample(c("M", "F"), 5, TRUE),
+    group = sample(c("ctrl", "trt", "beads"), 5, TRUE)
+)
+exp_meta <- list(
+    date_run = as.Date("2021/01/20"),
+    reads_per_sample = colSums(counts_dat)
+)
 
 rownames(counts_dat) <- rownames(logfc_dat) <-
-     rownames(prob_dat) <- rownames(peptide_meta) <-
-     paste0("pep_", 1:5)
+    rownames(prob_dat) <- rownames(peptide_meta) <-
+    paste0("pep_", 1:5)
 colnames(counts_dat) <- colnames(logfc_dat) <-
-     colnames(prob_dat) <- rownames(sample_meta) <-
-     paste0("sample_", 1:5)
+    colnames(prob_dat) <- rownames(sample_meta) <-
+    paste0("sample_", 1:5)
 
-phip_obj <- PhIPData(counts_dat, logfc_dat, prob_dat,
-     peptide_meta, sample_meta, exp_meta)
+phip_obj <- PhIPData(
+    counts_dat, logfc_dat, prob_dat,
+    peptide_meta, sample_meta, exp_meta
+)
 phip_obj
-
 }
 \seealso{
 \code{\link{PhIPData-methods}} for accessors and modifiers for PhIPData

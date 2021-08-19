@@ -1,25 +1,3 @@
-# ============ Define package environment for global variables ============
-pkg_env <- new.env()
-
-# Build default variables by system
-if (system.file(package = "PhIPData", "extdata/defaults.rda") == "") {
-    BEADS_NAME <- "beads"
-    ALIAS_PATH <- system.file(package = "PhIPData", "extdata/alias.rda")
-    PHIP_LIBRARY_PATH <- system.file(package = "PhIPData", "libraries")
-
-    save(
-        list = c("BEADS_NAME", "ALIAS_PATH", "PHIP_LIBRARY_PATH"),
-        file = paste0(
-            system.file(package = "PhIPData", "extdata"),
-            "/defaults.rda"
-        )
-    )
-}
-load(system.file(package = "PhIPData", "extdata/defaults.rda"),
-    envir = pkg_env
-)
-load(get("ALIAS_PATH", envir = pkg_env), envir = pkg_env)
-
 #' Defining how beads-only samples are encoded.
 #'
 #' @description \code{getBeadsName} and \code{setBeadsName} are two function to

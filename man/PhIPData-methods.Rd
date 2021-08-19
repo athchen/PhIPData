@@ -161,7 +161,6 @@ prob(phip_obj) <- replacement_dat
 as(phip_obj, "DGEList")
 as(phip_obj, "List")
 as(phip_obj, "list")
-
 }
 \seealso{
 \code{\link[SummarizedExperiment]{assays}} for

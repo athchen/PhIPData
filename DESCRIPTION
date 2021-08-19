@@ -47,5 +47,6 @@ Collate:
     'library.R'
     'subset.R'
     'summaries.R'
+    'zzz.R'
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr

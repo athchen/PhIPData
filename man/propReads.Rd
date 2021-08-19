@@ -26,5 +26,4 @@ propReads(phip_obj)
 
 ## Return an unnamed matrix
 propReads(phip_obj, withDimnames = FALSE)
-
 }

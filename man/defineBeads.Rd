@@ -42,6 +42,8 @@ samples are beads-only samples in the \code{groups} column of
 getBeadsName()
 
 ## Not run since it changes defaults/user settings
-\dontrun{setBeadsName("beads-only")}
+\dontrun{
+setBeadsName("beads-only")
+}
 
 }

@@ -28,5 +28,4 @@ librarySize(phip_obj)
 
 ## Return an unnamed vector
 librarySize(phip_obj, withDimnames = FALSE)
-
 }

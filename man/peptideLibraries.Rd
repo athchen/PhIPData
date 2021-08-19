@@ -64,19 +64,24 @@ the specified peptide information.
 \examples{
 ## Get and set path to libraries folder
 getLibraryPath()
-\dontrun{setLibraryPath("examplepath/")}
+\dontrun{
+setLibraryPath("examplepath/")
+}
 
 ## Create a new library
-pep_meta <- data.frame(species = c(rep("human immunodeficiency virus", 3),
-     rep("Epstein-Barr virus", 2)))
+pep_meta <- data.frame(species = c(
+    rep("human immunodeficiency virus", 3),
+    rep("Epstein-Barr virus", 2)
+))
 makeLibrary(pep_meta, "new_library")
 
 ## Use new library
 counts_dat <- matrix(1:10, nrow = 5)
-phip_obj <- PhIPData(counts = counts_dat,
-     peptideInfo = getLibrary("new_library"))
+phip_obj <- PhIPData(
+    counts = counts_dat,
+    peptideInfo = getLibrary("new_library")
+)
 
 ## Delete created library
 file.remove(paste0(getLibraryPath(), "/new_library.rds"))
-
 }

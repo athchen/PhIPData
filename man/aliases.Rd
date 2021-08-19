@@ -89,8 +89,10 @@ deleteAlias(c("virus_1", "virus_2"))
 ## Example of how to subset HIV using `getAlias`
 ## Often, it is useful to set the `ignore.case` of `grep`/`grepl` to TRUE.
 counts_dat <- matrix(1:10, nrow = 5)
-peptide_meta <- data.frame(species = c(rep("Epstein-Barr virus", 2),
-    rep("human immunodeficiency virus", 3)))
+peptide_meta <- data.frame(species = c(
+    rep("Epstein-Barr virus", 2),
+    rep("human immunodeficiency virus", 3)
+))
 
 phip_obj <- PhIPData(counts = counts_dat, peptideInfo = peptide_meta)
 subset(phip_obj, grepl(getAlias("HIV"), species, ignore.case = TRUE))
