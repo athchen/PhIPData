@@ -37,7 +37,8 @@ Suggests:
     rmarkdown,
     covr, 
     dplyr,
-    readr
+    readr, 
+    withr
 biocViews: Infrastructure, DataRepresentation, Sequencing, Coverage
 BugReports: https://github.com/athchen/PhIPData/issues
 Collate: 
