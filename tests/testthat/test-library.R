@@ -3,9 +3,6 @@ context("Libraries can be stored and loaded for populating peptide information."
 test_that("libraries can be created and used to make valid PhIPData objects.", {
     is_windows <- grepl("windows", .Platform$OS.type)
 
-    library_loc <- system.file("libraries", package = "PhIPData")
-    expect_equal(getLibraryPath(), library_loc)
-
     # Test library path functions
     expect_error(setLibraryPath("invalid_path"), "Invalid specified path.")
 

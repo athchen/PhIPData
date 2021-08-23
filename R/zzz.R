@@ -30,7 +30,7 @@ pkg_env <- new.env()
         envir = pkg_env
     )
 
-    ## Check if defaults info is valid, if not, rebuild
+    ## Check if defaults info is valid, if not, rebuild with defaults
     if (any(!file.exists(c(pkg_env$ALIAS_PATH, pkg_env$PHIP_LIBRARY_PATH)))) {
         .createDefaults()
     }

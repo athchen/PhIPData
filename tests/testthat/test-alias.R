@@ -3,10 +3,6 @@ context("Aliases for peptide subsetting can be created, modified, and deleted.")
 test_that("the alias database can be accessed and modified", {
 
     # Test path functions
-    expect_equal(
-        getAliasPath(),
-        system.file(package = "PhIPData", "extdata/alias.rda")
-    )
     expect_error(setAliasPath("bad_path"), "Invalid alias file location.")
     expect_error(
         setAliasPath(system.file("extdata/virscan.tsv",
