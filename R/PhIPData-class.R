@@ -269,7 +269,7 @@ PhIPData <- function(counts = matrix(nrow = 0, ncol = 0),
     match <- c(length(fixed_row) == 1, length(fixed_col) == 1)
     error <- paste0(
         "The number of ",
-        paste0(c("samples", "peptides")[!match], collapse = " and "),
+        paste0(c("peptides", "samples")[!match], collapse = " and "),
         " differs across inputs."
     )
 
