@@ -12,9 +12,9 @@ pkg_env <- new.env()
     )
     save(
         list = c("BEADS_NAME", "ALIAS_PATH", "PHIP_LIBRARY_PATH"),
-        file = paste0(
-            system.file(package = "PhIPData", "extdata"),
-            "/defaults.rda"
+        file = file.path(
+            system.file(package = "PhIPData", "extdata/defaults.rda"),
+            "defaults.rda"
         ),
         envir = pkg_env
     )

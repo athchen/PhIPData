@@ -1,4 +1,9 @@
-# Changes in version 1.1.1 (2021-08-05)
+# Changes in version 1.3.1 (2022-02-02)
+
+* Corrected typo in sample name error. 
+* Changed `paste0()` calls to `file.path()` calls to fix build problems.
+
+# Changes in version 1.1.2 (2021-08-05)
 
 * Added `propReads()` function to calculate the proportion of sample reads 
 pulled by each peptide. 
