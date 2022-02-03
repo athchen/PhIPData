@@ -1,3 +1,5 @@
+utils::globalVariables(c("alias"))
+
 #' Using aliases to subset virus data
 #'
 #' @description Rather than typing out full viruses names or repeating

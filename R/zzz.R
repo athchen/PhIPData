@@ -13,7 +13,7 @@ pkg_env <- new.env()
     save(
         list = c("BEADS_NAME", "ALIAS_PATH", "PHIP_LIBRARY_PATH"),
         file = file.path(
-            system.file(package = "PhIPData", "extdata/defaults.rda"),
+            system.file(package = "PhIPData", "extdata"),
             "defaults.rda"
         ),
         envir = pkg_env
@@ -23,10 +23,10 @@ pkg_env <- new.env()
 .onLoad <- function(libname, pkgname) {
     # Build default variables by system if file does not exists
     extdata_path <- system.file(package = "PhIPData", "extdata")
-    if (system.file(package = "PhIPData", "extdata/defaults.rda") == "") {
+    if (!file.exists(file.path(extdata_path, "defaults.rda"))) {
         .createDefaults()
     }
-    load(system.file(package = "PhIPData", "extdata/defaults.rda"),
+    load(file.path(extdata_path,  "defaults.rda"),
         envir = pkg_env
     )
 
