@@ -26,9 +26,7 @@ pkg_env <- new.env()
     if (!file.exists(file.path(extdata_path, "defaults.rda"))) {
         .createDefaults()
     }
-    load(file.path(extdata_path,  "defaults.rda"),
-        envir = pkg_env
-    )
+    load(file.path(extdata_path,  "defaults.rda"), envir = pkg_env)
 
     ## Check if defaults info is valid, if not, rebuild with defaults
     if (any(!file.exists(c(pkg_env$ALIAS_PATH, pkg_env$PHIP_LIBRARY_PATH)))) {

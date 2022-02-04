@@ -60,7 +60,7 @@ setBeadsName <- function(name) {
         save(
             list = c("BEADS_NAME", "ALIAS_PATH", "PHIP_LIBRARY_PATH"),
             envir = pkg_env,
-            file = system.file(package = "PhIPData", "extdata/defaults.rda")
+            file = system.file(package = "PhIPData", "extdata", "defaults.rda")
         )
     }
 }

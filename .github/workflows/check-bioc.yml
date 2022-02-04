@@ -157,6 +157,7 @@ jobs:
         run: |
           curl.exe -o wjags.exe --url https://www.r-project.org/nosvn/winutf8/ucrt3/extra/jags/JAGS-4.3.0.exe
           wjags.exe /S
+          del /f wjags.exe
         shell: cmd
 
       - name: Install BiocManager
