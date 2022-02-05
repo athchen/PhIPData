@@ -262,14 +262,7 @@ head(propReads(phip_obj))
 
 ## Using template libraries
 
-Rather than re-importing peptide annotations, `PhIPData` allows the user to create and reuse existing libraries. By default, libraries are stored in the `libraries` folder of the `PhIPData` package. The library path can be set using `setLibraryPath(new_path)`. Once set, the new path is stored in the `PHIP_LIBRARY_PATH` `R` environment variable. The current library path can be viewed with `getLibraryPath()`.  
-
-
-```{r}
-getLibraryPath()
-```
-
-To save a library for future use, we can use `makeLibrary(object, name_of_library)`. The peptide metadata should be in a matrix-like form such as a `DataFrame` or `data.frame`. 
+Rather than re-importing peptide annotations, `PhIPData` allows the user to create and reuse existing libraries. To save a library for future use, we can use `makeLibrary(object, name_of_library)`. The peptide metadata should be in a matrix-like form such as a `DataFrame` or `data.frame`. 
 
 ```{r}
 # Save virscan_info as the human_virus library
@@ -284,9 +277,10 @@ PhIPData(counts = counts_dat,
          peptideInfo = getLibrary("human_virus"))
 ```
 
-```{r, echo = FALSE, results = "hide"}
-# clean-up test space
-file.remove(paste0(getLibraryPath(), "/human_virus.rds"))
+Libraries can be removed with the `removeLibrary(library_name)` command.
+
+```{r}
+removeLibrary("human_virus")
 ```
 
 ## Using aliases

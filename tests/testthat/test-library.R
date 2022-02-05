@@ -1,25 +1,7 @@
 context("Libraries can be stored and loaded for populating peptide information.")
 
-test_that("libraries can be created and used to make valid PhIPData objects.", {
-    is_windows <- grepl("windows", .Platform$OS.type)
-
-    # Test library path functions
-    expect_error(setLibraryPath("invalid_path"), "Invalid specified path.")
-
-    extdata_loc <- system.file("extdata", package = "PhIPData")
-    setLibraryPath(extdata_loc)
-    extdata_loc <- if (is_windows) {
-        gsub("/", "\\", extdata_loc, fixed = TRUE)
-    } else {
-        extdata_loc
-    }
-    expect_equal(getLibraryPath(), extdata_loc)
-
+test_that("libraries can be created", {
     # Test library creation
-    if (file.exists(paste0(extdata_loc, "/virscan.rds"))) {
-        file.remove(paste0(extdata_loc, "/virscan.rds"))
-    }
-
     virscan_file <- system.file("extdata", "virscan.tsv", package = "PhIPData")
     virscan_info <- readr::read_tsv(virscan_file,
         col_types = readr::cols(
@@ -44,9 +26,17 @@ test_that("libraries can be created and used to make valid PhIPData objects.", {
     ) %>%
         as.data.frame()
 
-    makeLibrary(virscan_info, "virscan")
-    expect_true(file.exists(paste0(extdata_loc, "/virscan.rds")))
+    makeLibrary(virscan_info, "human")
+    bfc <- BiocFileCache::BiocFileCache(
+        tools::R_user_dir("beer", which = "cache"),
+        ask = FALSE
+    )
 
+    libpath <- BiocFileCache::bfcquery(bfc, "library_human")
+    expect_true(nrow(libpath) == 1)
+})
+
+test_that("Libraries can be accessed.", {
     # test use function
     n_samples <- 96L
     n_peptides <- nrow(virscan_info)
@@ -78,10 +68,20 @@ test_that("libraries can be created and used to make valid PhIPData objects.", {
     phip_obj <- PhIPData(
         counts = counts, logfc = logfc, prob = prob,
         sampleInfo = sampleInfo,
-        peptideInfo = getLibrary("virscan")
+        peptideInfo = getLibrary("human")
     )
 
-    # clean-up test space
-    setLibraryPath(system.file(package = "PhIPData", "libraries"))
-    file.remove(paste0(extdata_loc, "/virscan.rds"))
+    expect_s4_class(phip_obj, "PhIPData")
+})
+
+test_that("Libraries can be removed", {
+    # Test library removal functions
+    removeLibrary("human")
+
+    bfc <- BiocFileCache::BiocFileCache(
+        tools::R_user_dir("beer", which = "cache"),
+        ask = FALSE
+    )
+    libpath <- BiocFileCache::bfcquery(bfc, "library_human")
+    expect_true(nrow(libpath) == 0)
 })

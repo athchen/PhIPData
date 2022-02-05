@@ -1,36 +1,47 @@
 pkg_env <- new.env()
 
 .createDefaults <- function() {
-    assign("BEADS_NAME", "beads", envir = pkg_env)
-    assign("ALIAS_PATH",
+
+    # Create default variable for beads name
+    beads_path <- BiocFileCache::bfcnew(
+        pkg_env$beer_cache, "beads_name",
+        ext = ".rds"
+    )
+    saveRDS("beads", beads_path)
+
+    # Copy default alias list to cache
+    BiocFileCache::bfcadd(pkg_env$beer_cache, "alias",
         system.file(package = "PhIPData", "extdata/alias.rda"),
-        envir = pkg_env
+        action = "copy"
     )
-    assign("PHIP_LIBRARY_PATH",
-        system.file(package = "PhIPData", "libraries"),
-        envir = pkg_env
+
+    # Copy small VirScan library to cache
+    BiocFileCache::bfcadd(pkg_env$beer_cache, "library_virscan",
+        system.file(package = "PhIPData", "libraries", "virscan.rds"),
+        action = "copy"
     )
-    save(
-        list = c("BEADS_NAME", "ALIAS_PATH", "PHIP_LIBRARY_PATH"),
-        file = file.path(
-            system.file(package = "PhIPData", "extdata"),
-            "defaults.rda"
-        ),
-        envir = pkg_env
-    )
+    TRUE
 }
 
 .onLoad <- function(libname, pkgname) {
-    # Build default variables by system if file does not exists
-    extdata_path <- system.file(package = "PhIPData", "extdata")
-    if (!file.exists(file.path(extdata_path, "defaults.rda"))) {
-        .createDefaults()
-    }
-    load(file.path(extdata_path,  "defaults.rda"), envir = pkg_env)
 
-    ## Check if defaults info is valid, if not, rebuild with defaults
-    if (any(!file.exists(c(pkg_env$ALIAS_PATH, pkg_env$PHIP_LIBRARY_PATH)))) {
-        .createDefaults()
+    ## Load cache
+    cache_path <- tools::R_user_dir("beer", which = "cache")
+    assign("beer_cache",
+        BiocFileCache::BiocFileCache(cache_path, ask = FALSE),
+        envir = pkg_env
+    )
+
+    ## If cache does not exist, add defaults
+    if (length(pkg_env$beer_cache) == 0) {
+        tmp <- .createDefaults()
     }
-    load(get("ALIAS_PATH", envir = pkg_env), envir = pkg_env)
+
+    ## Load beads name
+    beads_path <- BiocFileCache::bfcquery(pkg_env$beer_cache, "beads_name")$rpath
+    pkg_env$BEADS_NAME <- readRDS(beads_path)
+
+    ## Load alias
+    alias_path <- BiocFileCache::bfcquery(pkg_env$beer_cache, "alias")$rpath
+    load(alias_path, envir = pkg_env)
 }

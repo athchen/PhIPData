@@ -2,17 +2,11 @@
 % Please edit documentation in R/alias.R
 \name{aliases}
 \alias{aliases}
-\alias{getAliasPath}
-\alias{setAliasPath}
 \alias{getAlias}
 \alias{setAlias}
 \alias{deleteAlias}
 \title{Using aliases to subset virus data}
 \usage{
-getAliasPath()
-
-setAliasPath(path)
-
 getAlias(virus)
 
 setAlias(virus, pattern)
@@ -20,14 +14,11 @@ setAlias(virus, pattern)
 deleteAlias(virus)
 }
 \arguments{
-\item{path}{path to \code{alias.rda}}
-
 \item{virus}{character vector of the alias}
 
 \item{pattern}{character vector of regexpressions corresponding to the alias}
 }
 \value{
-\code{getAliasPath()} returns the path to the alias database.
 \code{getAlias()} returns a vector of regexpressions corresponding to
 queried inputs. The returned vector is the same length as the input vector.
 Queries that do not exist in the database return \code{NA_character_}.
@@ -38,28 +29,19 @@ regexpressions, users can use aliases as a convenient tool to subset
 \code{PhIPData} objects by viral species.
 }
 \details{
-Aliases are saved to an rda file containing only a \code{data.frame}
-with two columns: \code{alias} and \code{pattern}. The \code{alias} column
-contains the alias while the \code{pattern} column contains the corresponding
-regexpression of interest.
-
-The location of the alias database is returned and defined by
-\code{getAliasPath} and \code{setAliasPath}, respectively. By default
-\code{getAliasPath} points to the \code{extdata} package folder.
+Aliases are cached to an rda file containing only a
+\code{data.frame} with two columns: \code{alias} and \code{pattern}. The
+\code{alias} column contains the alias while the \code{pattern} column
+contains the corresponding regexpression of interest.
 
 Once an alias is added to the database, it can always be accessed once the
 package is loaded. It is recommended to use the functions \code{setAlias}
-and \code{deleteAlias} to edit the alias database rather than modify the
-.rda file itself. If an alias already exists in the database, \code{setAlias}
-replaces the matched pattern. If an alias does not exist in the database,
-\code{getAlias} returns \code{NA_character_}.
+and \code{deleteAlias}. If an alias already exists in the database,
+\code{setAlias} replaces the matched pattern. If an alias does not exist
+in the database, \code{getAlias} returns \code{NA_character_}.
 }
 \section{Functions}{
 \itemize{
-\item \code{getAliasPath}: return the path to the .rda file of aliases.
-
-\item \code{setAliasPath}: set the path to the .rda file of aliases.
-
 \item \code{getAlias}: return a regexpression corresponding to the alias.
 
 \item \code{setAlias}: define/modify the regexpression for an alias.
@@ -68,11 +50,6 @@ replaces the matched pattern. If an alias does not exist in the database,
 }}
 
 \examples{
-## Get and set path to alias.rda
-getAliasPath()
-\dontrun{
-setAliasPath("examplepath/alias.rda")
-}
 
 ## Edit and modify aliases in the database
 setAlias("test_virus", "test_pattern")

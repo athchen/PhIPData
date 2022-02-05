@@ -5,32 +5,18 @@
 #' tidied libraries.
 #'
 #' @details Each library is stored as a \linkS4class{DataFrame} in .rds file.
-#' By default the libraries are stored in the \code{libraries} package folder.
-#' \code{setLibraryPath} allows the user to change the location of this library,
-#' if desired.
+#' New libraries can be stored for future use with the \code{makeLibrary}
+#' function.
 #'
-#' While libraries can be directly saved in the specified format by the user,
-#' it is highly recommended to use the \code{makeLibrary} function to
-#' save a new library.
-#'
-#' @param path path to a folder containing a .rds files for each library
 #' @param name name of the library
 #' @param library a \code{matrix}, \code{data.frame}, or
 #'     \linkS4class{DataFrame} with the peptide information for the
 #'     specified library.
 #'
-#' @return \code{getLibraryPath} returns the path to the directory containing
-#' .rds files for each library. \code{getLibrary} returns a
-#' \linkS4class{DataFrame} corresponding to the peptide information for the
-#' specified library.
+#' @return \code{getLibrary} returns a \linkS4class{DataFrame} corresponding to
+#' the peptide information for the specified library.
 #'
 #' @examples
-#' ## Get and set path to libraries folder
-#' getLibraryPath()
-#' \dontrun{
-#' setLibraryPath("examplepath/")
-#' }
-#'
 #' ## Create a new library
 #' pep_meta <- data.frame(species = c(
 #'     rep("human immunodeficiency virus", 3),
@@ -45,41 +31,24 @@
 #'     peptideInfo = getLibrary("new_library")
 #' )
 #'
+#' ## List libraries
+#' listLibrary()
+#'
 #' ## Delete created library
-#' file.remove(paste0(getLibraryPath(), "/new_library.rds"))
+#' removeLibrary("new_library")
 #' @name peptideLibraries
 #' @include PhIPData-class.R
 NULL
-
-#' @describeIn peptideLibraries return the path to a folder containing the
-#'     libraries.
-#' @export
-getLibraryPath <- function() {
-    get("PHIP_LIBRARY_PATH", envir = pkg_env)
-}
-
-#' @describeIn peptideLibraries set the path to a folder containing the
-#'     libraries.
-#' @export
-setLibraryPath <- function(path) {
-    if (!is.character(path) | !dir.exists(path)) {
-        stop("Invalid specified path.")
-    } else {
-        assign("PHIP_LIBRARY_PATH", normalizePath(path), envir = pkg_env)
-        save(
-            list = c("BEADS_NAME", "ALIAS_PATH", "PHIP_LIBRARY_PATH"),
-            envir = pkg_env,
-            file = system.file(package = "PhIPData", "extdata", "defaults.rda")
-        )
-    }
-}
 
 #' @describeIn peptideLibraries return a \linkS4class{DataFrame} with the
 #' peptide information corresponding to the library.
 #'
 #' @export
 getLibrary <- function(name) {
-    path <- paste0(getLibraryPath(), "/", name, ".rds")
+    path <- BiocFileCache::bfcquery(
+        pkg_env$beer_cache,
+        paste0("library_", name)
+    )$rpath
     readRDS(path)
 }
 
@@ -87,12 +56,16 @@ getLibrary <- function(name) {
 #' the specified peptide information.
 #'
 #' @export
-#' @importFrom utils menu
 makeLibrary <- function(library, name) {
-    path <- paste0(getLibraryPath(), "/", name, ".rds")
+    ## Check if library exists
+    query_out <- BiocFileCache::bfcquery(
+        pkg_env$beer_cache,
+        paste0("library_", name)
+    )$rpath
 
-    write <- if (file.exists(path)) {
-        menu(c("Yes", "No"),
+    ## If the library exists, confirm that the file should be overwritten
+    write <- if (length(query_out) != 0) {
+        utils::menu(c("Yes", "No"),
             title = paste0(
                 "The library files already exists. ",
                 "Do you want to overwrite the file?"
@@ -101,7 +74,49 @@ makeLibrary <- function(library, name) {
     } else {
         1
     }
+
     if (write == 1) {
-        saveRDS(library, file = path)
+        # Define library path
+        library_path <- ifelse(
+            length(query_out) == 0,
+            BiocFileCache::bfcnew(
+                pkg_env$beer_cache,
+                paste0("library_", name),
+                ext = ".rds"
+            ),
+            query_out
+        )
+        saveRDS(library, file = library_path)
     }
+}
+
+#' @describeIn peptideLibraries delete stored libraries
+#'
+#' @export
+removeLibrary <- function(name) {
+
+    ## Check if library exists
+    query_out <- BiocFileCache::bfcquery(
+        pkg_env$beer_cache,
+        paste0("library_", name)
+    )$rid
+
+    if (length(query_out) == 0) {
+        cli::cli_alert_warning("Library not found. No libraries removed.")
+    } else {
+        BiocFileCache::bfcremove(pkg_env$beer_cache, query_out)
+    }
+}
+
+
+#' @describeIn peptideLibraries list all available libraries
+#'
+#' @export
+listLibrary <- function() {
+
+    ## Check if library exists
+    BiocFileCache::bfcquery(
+        pkg_env$beer_cache,
+        "library_"
+    )$rname
 }

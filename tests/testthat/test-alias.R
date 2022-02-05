@@ -2,18 +2,8 @@ context("Aliases for peptide subsetting can be created, modified, and deleted.")
 
 test_that("the alias database can be accessed and modified", {
 
-    # Test path functions
-    expect_error(setAliasPath("bad_path"), "Invalid alias file location.")
-    expect_error(
-        setAliasPath(system.file("extdata/virscan.tsv",
-            package = "PhIPData"
-        )),
-        "Invalid file type."
-    )
-
-    alias_path <- system.file(package = "PhIPData", "extdata/alias.rda")
-    setAliasPath(alias_path)
-    expect_equal(getAliasPath(), alias_path)
+    # check getter
+    expect_equal(getAlias("HIV"), "Human immunodeficiency virus")
 
     # check setter when virus does not exist
     setAlias("test_virus", "test_pattern")
@@ -30,14 +20,14 @@ test_that("the alias database can be accessed and modified", {
         deleteAlias("test_virus"),
         "Virus does not exist in the alias database."
     )
-
-    # clean-up test space
-    setAliasPath(system.file(package = "PhIPData", "extdata/alias.rda"))
 })
 
 test_that("Alias functions can be applied to vectors", {
     # Check vectorization
-    expect_equal(getAlias(c("HIV", "EBV")), c("Human immunodeficiency virus", "Epstein-Barr"))
+    expect_equal(
+        getAlias(c("HIV", "EBV")),
+        c("Human immunodeficiency virus", "Epstein-Barr")
+    )
     setAlias(c("test_1", "HIV"), c("pattern_1", "hiv"))
     expect_equal(getAlias(c("test_1", "HIV")), c("pattern_1", "hiv"))
     deleteAlias(c("test_1", "HIV"))

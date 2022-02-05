@@ -2,23 +2,21 @@
 % Please edit documentation in R/library.R
 \name{peptideLibraries}
 \alias{peptideLibraries}
-\alias{getLibraryPath}
-\alias{setLibraryPath}
 \alias{getLibrary}
 \alias{makeLibrary}
+\alias{removeLibrary}
+\alias{listLibrary}
 \title{Peptide libraries}
 \usage{
-getLibraryPath()
-
-setLibraryPath(path)
-
 getLibrary(name)
 
 makeLibrary(library, name)
+
+removeLibrary(name)
+
+listLibrary()
 }
 \arguments{
-\item{path}{path to a folder containing a .rds files for each library}
-
 \item{name}{name of the library}
 
 \item{library}{a \code{matrix}, \code{data.frame}, or
@@ -26,10 +24,8 @@ makeLibrary(library, name)
 specified library.}
 }
 \value{
-\code{getLibraryPath} returns the path to the directory containing
-.rds files for each library. \code{getLibrary} returns a
-\linkS4class{DataFrame} corresponding to the peptide information for the
-specified library.
+\code{getLibrary} returns a \linkS4class{DataFrame} corresponding to
+the peptide information for the specified library.
 }
 \description{
 PhIP-Seq experiments often use identical peptide libraries
@@ -38,36 +34,23 @@ tidied libraries.
 }
 \details{
 Each library is stored as a \linkS4class{DataFrame} in .rds file.
-By default the libraries are stored in the \code{libraries} package folder.
-\code{setLibraryPath} allows the user to change the location of this library,
-if desired.
-
-While libraries can be directly saved in the specified format by the user,
-it is highly recommended to use the \code{makeLibrary} function to
-save a new library.
+New libraries can be stored for future use with the \code{makeLibrary}
+function.
 }
 \section{Functions}{
 \itemize{
-\item \code{getLibraryPath}: return the path to a folder containing the
-libraries.
-
-\item \code{setLibraryPath}: set the path to a folder containing the
-libraries.
-
 \item \code{getLibrary}: return a \linkS4class{DataFrame} with the
 peptide information corresponding to the library.
 
 \item \code{makeLibrary}: create and store a \linkS4class{DataFrame} with
 the specified peptide information.
+
+\item \code{removeLibrary}: delete stored libraries
+
+\item \code{listLibrary}: list all available libraries
 }}
 
 \examples{
-## Get and set path to libraries folder
-getLibraryPath()
-\dontrun{
-setLibraryPath("examplepath/")
-}
-
 ## Create a new library
 pep_meta <- data.frame(species = c(
     rep("human immunodeficiency virus", 3),
@@ -82,6 +65,10 @@ phip_obj <- PhIPData(
     peptideInfo = getLibrary("new_library")
 )
 
+## List libraries
+listLibrary()
+
 ## Delete created library
-file.remove(paste0(getLibraryPath(), "/new_library.rds"))
+removeLibrary("new_library")
+
 }

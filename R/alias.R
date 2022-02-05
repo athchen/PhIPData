@@ -6,37 +6,25 @@ utils::globalVariables(c("alias"))
 #' regexpressions, users can use aliases as a convenient tool to subset
 #' \code{PhIPData} objects by viral species.
 #'
-#' @details Aliases are saved to an rda file containing only a \code{data.frame}
-#' with two columns: \code{alias} and \code{pattern}. The \code{alias} column
-#' contains the alias while the \code{pattern} column contains the corresponding
-#' regexpression of interest.
-#'
-#' The location of the alias database is returned and defined by
-#' \code{getAliasPath} and \code{setAliasPath}, respectively. By default
-#' \code{getAliasPath} points to the \code{extdata} package folder.
+#' @details Aliases are cached to an rda file containing only a
+#' \code{data.frame} with two columns: \code{alias} and \code{pattern}. The
+#' \code{alias} column contains the alias while the \code{pattern} column
+#' contains the corresponding regexpression of interest.
 #'
 #' Once an alias is added to the database, it can always be accessed once the
 #' package is loaded. It is recommended to use the functions \code{setAlias}
-#' and \code{deleteAlias} to edit the alias database rather than modify the
-#' .rda file itself. If an alias already exists in the database, \code{setAlias}
-#' replaces the matched pattern. If an alias does not exist in the database,
-#' \code{getAlias} returns \code{NA_character_}.
+#' and \code{deleteAlias}. If an alias already exists in the database,
+#' \code{setAlias} replaces the matched pattern. If an alias does not exist
+#' in the database, \code{getAlias} returns \code{NA_character_}.
 #'
-#' @param path path to \code{alias.rda}
 #' @param virus character vector of the alias
 #' @param pattern character vector of regexpressions corresponding to the alias
 #'
-#' @return \code{getAliasPath()} returns the path to the alias database.
-#' \code{getAlias()} returns a vector of regexpressions corresponding to
+#' @return \code{getAlias()} returns a vector of regexpressions corresponding to
 #' queried inputs. The returned vector is the same length as the input vector.
 #' Queries that do not exist in the database return \code{NA_character_}.
 #'
 #' @examples
-#' ## Get and set path to alias.rda
-#' getAliasPath()
-#' \dontrun{
-#' setAliasPath("examplepath/alias.rda")
-#' }
 #'
 #' ## Edit and modify aliases in the database
 #' setAlias("test_virus", "test_pattern")
@@ -64,29 +52,6 @@ utils::globalVariables(c("alias"))
 #'
 #' @include PhIPData-class.R
 NULL
-
-#' @describeIn aliases return the path to the .rda file of aliases.
-#' @export
-getAliasPath <- function() {
-    get("ALIAS_PATH", envir = pkg_env)
-}
-
-#' @describeIn aliases set the path to the .rda file of aliases.
-#' @export
-setAliasPath <- function(path) {
-    if (!is.character(path) | !file.exists(path)) {
-        stop("Invalid alias file location.")
-    } else if (!grepl("(rda|RData)", path)) {
-        stop("Invalid file type.")
-    } else {
-        assign("ALIAS_PATH", path, envir = pkg_env)
-        save(
-            list = c("BEADS_NAME", "ALIAS_PATH", "PHIP_LIBRARY_PATH"),
-            envir = pkg_env,
-            file = system.file(package = "PhIPData", "extdata", "defaults.rda")
-        )
-    }
-}
 
 .getOneAlias <- function(virus) {
     if (!virus %in% get("alias", envir = pkg_env)$alias) {
@@ -153,9 +118,10 @@ setAlias <- function(virus, pattern) {
         assign("alias", new_alias, envir = pkg_env)
 
         ## Save to where the environment is loaded
+        alias_path <- BiocFileCache::bfcquery(pkg_env$beer_cache, "alias")$rpath
         save(alias,
             envir = pkg_env,
-            file = getAliasPath()
+            file = alias_path
         )
     }
 }
@@ -168,9 +134,10 @@ setAlias <- function(virus, pattern) {
         assign("alias", pkg_env$alias[-virus_index, ], envir = pkg_env)
     }
 
+    alias_path <- BiocFileCache::bfcquery(pkg_env$beer_cache, "alias")$rpath
     save(alias,
         envir = pkg_env,
-        file = getAliasPath()
+        file = alias_path
     )
 }
 

@@ -22,6 +22,7 @@ Depends:
     R (>= 4.1.0), 
     SummarizedExperiment (>= 1.3.81)
 Imports:
+    BiocFileCache,
     BiocGenerics, 
     methods, 
     GenomicRanges, 
@@ -49,5 +50,5 @@ Collate:
     'subset.R'
     'summaries.R'
     'zzz.R'
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 VignetteBuilder: knitr

@@ -664,8 +664,8 @@ NULL
 #' @rdname PhIPData-methods
 #' @importFrom BiocGenerics counts
 setMethod("counts", "PhIPData", function(object, ...) {
-      SummarizedExperiment::assay(object, "counts", ...)
-  })
+    SummarizedExperiment::assay(object, "counts", ...)
+})
 
 #' @export
 #' @rdname PhIPData-methods
@@ -674,8 +674,8 @@ setGeneric("logfc", function(object, ...) standardGeneric("logfc"))
 #' @export
 #' @rdname PhIPData-methods
 setMethod("logfc", "PhIPData", function(object, ...) {
-      SummarizedExperiment::assay(object, "logfc", ...)
-  })
+    SummarizedExperiment::assay(object, "logfc", ...)
+})
 
 
 #' @export
@@ -685,8 +685,8 @@ setGeneric("prob", function(object, ...) standardGeneric("prob"))
 #' @export
 #' @rdname PhIPData-methods
 setMethod("prob", "PhIPData", function(object, ...) {
-      SummarizedExperiment::assay(object, "prob", ...)
-  })
+    SummarizedExperiment::assay(object, "prob", ...)
+})
 
 #' @export
 #' @rdname PhIPData-methods
@@ -695,8 +695,8 @@ setGeneric("peptideInfo", function(object, ...) standardGeneric("peptideInfo"))
 #' @export
 #' @rdname PhIPData-methods
 setMethod("peptideInfo", "PhIPData", function(object, ...) {
-      SummarizedExperiment::rowRanges(object, ...)
-  })
+    SummarizedExperiment::rowRanges(object, ...)
+})
 
 
 #' @export
@@ -706,8 +706,8 @@ setGeneric("sampleInfo", function(object, ...) standardGeneric("sampleInfo"))
 #' @export
 #' @rdname PhIPData-methods
 setMethod("sampleInfo", "PhIPData", function(object, ...) {
-      SummarizedExperiment::colData(object, ...)
-  })
+    SummarizedExperiment::colData(object, ...)
+})
 
 ### Setters ==============================================
 # This `assays` and `assay` replacement functions differs from the
@@ -903,8 +903,8 @@ setReplaceMethod("prob", "PhIPData", function(object, ..., value) {
 #' @export
 #' @rdname PhIPData-methods
 setGeneric("peptideInfo<-", function(object, value) {
-      standardGeneric("peptideInfo<-")
-  })
+    standardGeneric("peptideInfo<-")
+})
 
 #' @export
 #' @rdname PhIPData-methods
@@ -950,8 +950,8 @@ setReplaceMethod("peptideInfo", "PhIPData", function(object, value) {
 #' @export
 #' @rdname PhIPData-methods
 setGeneric("sampleInfo<-", function(object, ..., value) {
-      standardGeneric("sampleInfo<-")
-  })
+    standardGeneric("sampleInfo<-")
+})
 
 #' @export
 #' @rdname PhIPData-methods

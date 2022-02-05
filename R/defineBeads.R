@@ -36,7 +36,6 @@ getBeadsName <- function() {
 #'
 #' @param name a string indicating how beads-only samples are encoded.
 #' @export
-#' @importFrom cli cli_alert_warning
 setBeadsName <- function(name) {
     if (length(name) > 1) {
         cli::cli_alert_warning(paste0(
@@ -57,10 +56,9 @@ setBeadsName <- function(name) {
         stop("Beads cannot be specified via NA.")
     } else {
         assign("BEADS_NAME", name, envir = pkg_env)
-        save(
-            list = c("BEADS_NAME", "ALIAS_PATH", "PHIP_LIBRARY_PATH"),
-            envir = pkg_env,
-            file = system.file(package = "PhIPData", "extdata", "defaults.rda")
-        )
+        beads_path <- BiocFileCache::bfcquery(
+            pkg_env$beer_cache, "beads_name"
+        )$rpath
+        saveRDS(name, beads_path)
     }
 }
